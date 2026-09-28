@@ -1,0 +1,12 @@
+rooms name "(unnamed room)"
+mobs name "(no name)"
+mobs room_id nil
+mobs health_id nil
+mobs oxygen_id nil
+things name "(no name)"
+things room_id nil
+things mob_id nil
+powerbars value 0
+powerbars value_max 100
+powerbars regen nil
+powerbars cooldown 0
