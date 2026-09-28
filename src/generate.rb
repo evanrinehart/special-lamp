@@ -5,7 +5,7 @@ def make_example_world
     rooms.insert(1, :name => "Cryochamber")
     rooms.insert(2, :name => "Loading Bay")
     rooms.insert(3, :name => "Coat Closet")
-    rooms.insert(4, :name => "Pilotage")
+    rooms.insert(4, :name => "Navigation")
 
     mobs = world[:mobs]
     mobs.insert(5, :name => "Player", :room_id => 1, :health_id => 9, :oxygen_id => 10)
