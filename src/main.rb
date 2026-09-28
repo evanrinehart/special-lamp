@@ -5,8 +5,9 @@ require 'generate'
 
 filename = "world.save"
 world = load_world(filename) || make_example_world()
-app = App.new(world)
+app = App.new world
 cf = CommandFilter.new app
+
 loop do
     begin
         line = Readline.readline(app.prompt, true)
@@ -22,12 +23,12 @@ loop do
         break
     end
 
-    cmd, *args = tokenize(line.strip)
+    cmd, *args = tokenize line.strip
     if cmd
         done = cf.dispatch cmd, args
         break if done
     else
-        app.empty_command
+        app.empty_command()
     end
 
 end
