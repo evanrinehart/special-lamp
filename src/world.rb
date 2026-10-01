@@ -84,6 +84,13 @@ class ClassData
         end
     end
 
+    def delete(id)
+        @idlist.delete id
+        @columns.each do |prop, column|
+            column.delete id
+        end
+    end
+
     def find_by(prop, a)
         results = []
         @columns[prop].each do |id,b|
@@ -217,6 +224,9 @@ class SomeWorld
     def save_world(filename)
         store = PStore.new(filename)
         store.transaction do
+            store.keys.each do |name|
+                store.delete name
+            end
             @tables.each do |name, table|
                 store[name] = table
             end
@@ -237,6 +247,14 @@ class SomeWorld
 
     def add_empty_class(name)
         add_class(ClassData.new(name))
+    end
+
+    def delete_class(name)
+        if @tables.keys.include? name
+            @tables.delete name
+        else
+            raise "table #{name} not found"
+        end
     end
 
     def is_valid?
@@ -264,7 +282,7 @@ class SomeWorld
         i = 0
         @tables.each do |name, table|
             n = table.idlist.max
-            i = n > i ? n : i
+            i = n > i ? n : i unless n.nil?
         end
         i
     end

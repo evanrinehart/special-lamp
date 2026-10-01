@@ -5,22 +5,28 @@ class Mob < Entity
     def initialize(world, mob_id, table=nil)
         super world, mob_id, world.mobs
         @mobs = world.mobs
-        @things = world.things
-        @rooms = world.rooms
+        @objects = world.objects
+        @surfaces = world.surfaces
         @powerbars = world.powerbars
+        thing_id = @mobs.get(:object_id, mob_id)
+        @thing = Thing.new(world, thing_id)
+    end
+
+    def thing
+        @thing
     end
 
     def name
-        @mobs.get(:name, @id)
+        @thing.name
     end
 
-    def room
-        room_id = @mobs.get(:room_id, @id)
-        room_id && @rooms[room_id]
+    def surface
+        surf_id = @thing.on_surface_id
+        surf_id && @surfaces[surf_id]
     end
 
     def things
-        @things.find_by(:mob_id, @id)
+        @objects.find_by(:container_id, @thing.id)
     end
 
     def health
@@ -33,8 +39,8 @@ class Mob < Entity
         oxygen_id && @powerbars[oxygen_id]
     end
 
-    def move_to(room_id)
-        @mobs.set(:room_id, @id, room_id)
+    def move_to(surface_id)
+        @thing.move_to_surface surface_id
     end
 
 end

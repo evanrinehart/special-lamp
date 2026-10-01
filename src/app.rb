@@ -1,6 +1,6 @@
 require 'world'
 require 'commands'
-require 'room'
+require 'surface'
 require 'thing'
 require 'mob'
 
@@ -29,7 +29,9 @@ class CommandFilter
         in "addprop" then add_prop args
         in "rmprop" then rm_prop! args
         in "addclass" then add_class args
+        in "rmclass" then rm_class args
         in "spawn" then spawn args
+        in "delete" then unspawn args
         in "q" then return :stop
         else puts "unknown command"
         end
@@ -82,12 +84,31 @@ class CommandFilter
         end
     end
 
+    def rm_class args
+        if args.count < 1
+            puts "hint: rmclass <class>"
+        else
+            k = args[0].to_sym
+            app.delete_class k
+        end
+    end
+
     def spawn args
         if args.count < 1
             puts "hint: spawn <class>"
         else
             k = args[0].to_sym
             app.spawn_entity k
+        end
+    end
+
+    def unspawn args
+        if args.count < 2
+            puts "hint: delete <class> <id>"
+        else
+            k = args[0].to_sym
+            id = args[1].to_i
+            app.unspawn_entity k, id
         end
     end
 
@@ -101,7 +122,7 @@ class App
         @player_id = 5
         @reloadables = [
             'entity.rb',
-            'room.rb',
+            'surface.rb',
             'mob.rb',
             'thing.rb',
             'app.rb'
@@ -138,11 +159,11 @@ class App
 
     def look
         player = Mob.new(@world, @player_id)
-        room = player.room
-        if room.nil?
+        surf = player.surface
+        if surf.nil?
             puts "(nowhere)"
         else
-            roomlook room.id
+            roomlook surf.id
         end
     end
 
@@ -159,42 +180,39 @@ class App
     end
 
     def drop item_id
-        player = Mob.new(@world, @player_id)
-        room = player.room
+        player = Mob.new(@world, @player_id).thing
+        surf = player.surface
         thing = Thing.new(@world, item_id)
-        if room.nil?
+        if surf.nil?
             puts "nowhere to drop it"
         elsif thing.invalid?
             puts "no such thing"
         else
-            thing.move_to_room room.id
+            thing.move_to_surface surf.id
             puts "#{thing.name} dropped"
         end
     end
 
     def take item_id
-        #player = Mob.new(@world, @player_id)
+        player = Mob.new(@world, @player_id).thing
         thing = Thing.new(@world, item_id)
         if thing.invalid?
             puts "no such thing"
         else
-            thing.move_to_mob @player_id
+            thing.move_to_container player.id
             puts "#{thing.name} taken"
         end
     end
 
-    def roomlook(room_id)
-        room = Room.new(@world, room_id)
-        if room.exists?
-            puts room.name
-            room.mobs.each do |mob|
-                puts "  #{mob.name}"
-            end
-            room.things.each do |thing|
+    def roomlook(surface_id)
+        surf = Surface.new(@world, surface_id)
+        if surf.exists?
+            puts surf.name
+            surf.things.each do |thing|
                 puts "  #{thing.name}"
             end
         else
-            puts "bad room_id"
+            puts "bad surface_id"
         end
     end
 
@@ -216,18 +234,14 @@ class App
         puts "it is done"
     end
 
-    def move(mob_id, room_id)
-        mobs = @world.mobs
-        rooms = @world.rooms
-        if mobs.exists? mob_id
-            if rooms.exists? room_id
-                mobs.set(:room_id, mob_id, room_id)
-                puts "move complete"
-            else
-                puts "no such room"
-            end
+    def move(thing_id, surface_id)
+        thing = Thing.new(@world, thing_id)
+        surf = Surface.new(@world, surface_id)
+        if thing.size > surf.size
+            puts "that won't fit"
         else
-            puts "no such mob"
+            thing.move_to_surface surface_id
+            puts "#{thing.name} moved to #{surf.name}"
         end
     end
 
@@ -266,6 +280,17 @@ class App
         end
     end
 
+    def delete_class name
+        table = @world[name]
+        if table.nil?
+            puts "class #{name} not found"
+        else
+            n = table.population
+            @world.delete_class name
+            puts "class #{name} deleted (#{n} entries gone)"
+        end
+    end
+
     def spawn_entity klass
         table = @world[klass]
         if table.nil?
@@ -274,6 +299,16 @@ class App
             id = @world.generate_id
             table.insert(id, {})
             puts "#{klass} id=#{id} spawned"
+        end
+    end
+
+    def unspawn_entity klass, id
+        table = @world[klass]
+        if table.nil?
+            puts "no such class"
+        else
+            table.delete id
+            puts "#{klass} id=#{id} deleted"
         end
     end
 
