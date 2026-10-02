@@ -1,7 +1,6 @@
 require 'readline'
 require 'app'
 require 'parser'
-require 'generate'
 
 filename = "world.save"
 world = load_world(filename) || make_example_world()

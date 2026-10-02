@@ -1,8 +1,10 @@
 require 'world'
 require 'commands'
 require 'surface'
+require 'edge'
 require 'thing'
 require 'mob'
+
 
 class CommandFilter
 
@@ -11,7 +13,7 @@ class CommandFilter
     end
 
     def dispatch cmd, args
-        pp cmd: cmd, args: args
+        #pp cmd: cmd, args: args
 
         case cmd
         in "r" then app.reload
@@ -20,7 +22,8 @@ class CommandFilter
         in "schema" then app.schema
         in "l" then app.look
         in "i" then app.inventory
-        in "d" then app.dump args[0]
+        in "d" then dump args
+        in "df" then dump_file args
         in "w" then app.wait args[0].to_i
         in "set" then set args
         in "move" then app.move args[0].to_i, args[1].to_i
@@ -31,7 +34,12 @@ class CommandFilter
         in "addclass" then add_class args
         in "rmclass" then rm_class args
         in "spawn" then spawn args
+        in "spawnid" then spawnid args
         in "delete" then unspawn args
+        in "todo" then app.append_todo args[0]
+        in "todone" then app.checkoff_todo args[0].to_i
+        in "link" then link args
+        in "unlink" then unlink args
         in "q" then return :stop
         else puts "unknown command"
         end
@@ -40,6 +48,22 @@ class CommandFilter
 
     def app
         @app
+    end
+
+    def link args
+        if args.count < 1
+            puts "link <target>"
+        else
+            app.link args[0].to_i
+        end
+    end
+
+    def unlink args
+        if args.count < 1
+            puts "unlink <target>"
+        else
+            app.unlink args[0].to_i
+        end
     end
 
     def set args
@@ -102,6 +126,18 @@ class CommandFilter
         end
     end
 
+    def spawnid args
+        if args.count < 2
+            puts "spawnid <class> <id> is only for restoring a text dump"
+            puts "spawning an entity with a pre-existing ID would be bad"
+            puts "no checking will be done here"
+        else
+            k = args[0].to_sym
+            id = args[1].to_i
+            app.spawn_entity_with_id k, id
+        end
+    end
+
     def unspawn args
         if args.count < 2
             puts "hint: delete <class> <id>"
@@ -109,6 +145,23 @@ class CommandFilter
             k = args[0].to_sym
             id = args[1].to_i
             app.unspawn_entity k, id
+        end
+    end
+
+    def dump args
+        if args.empty?
+            app.dump nil
+        else
+            app.dump args[0]
+        end
+    end
+
+    def dump_file args
+        if args.empty?
+            puts "hint: df <filename>"
+            puts "file will be overwritten without warning"
+        else
+            app.dump_file args[0]
         end
     end
 
@@ -123,6 +176,7 @@ class App
         @reloadables = [
             'entity.rb',
             'surface.rb',
+            'edge.rb',
             'mob.rb',
             'thing.rb',
             'app.rb'
@@ -163,7 +217,14 @@ class App
         if surf.nil?
             puts "(nowhere)"
         else
-            roomlook surf.id
+            puts surf.name
+            surf.things.each do |thing|
+                puts "  #{thing.name}"
+            end
+            surf.edges.each do |edge|
+                to_surf = edge.to_edge.surface
+                puts "  passage to #{to_surf.name}"
+            end
         end
     end
 
@@ -201,18 +262,6 @@ class App
         else
             thing.move_to_container player.id
             puts "#{thing.name} taken"
-        end
-    end
-
-    def roomlook(surface_id)
-        surf = Surface.new(@world, surface_id)
-        if surf.exists?
-            puts surf.name
-            surf.things.each do |thing|
-                puts "  #{thing.name}"
-            end
-        else
-            puts "bad surface_id"
         end
     end
 
@@ -297,9 +346,14 @@ class App
             puts "no such class"
         else
             id = @world.generate_id
-            table.insert(id, {})
+            spawn_entity_id klass, id
             puts "#{klass} id=#{id} spawned"
         end
+    end
+
+    def spawn_entity_id klass, id
+        table = @world[klass]
+        table.insert(id, {})
     end
 
     def unspawn_entity klass, id
@@ -347,6 +401,67 @@ class App
             puts "you get tired of waiting"
             hud_report
         end
+    end
+
+    def append_todo note
+        id = @world.generate_id
+        @world[:todos].insert(id, {:note => note})
+        puts "noted (id=#{id})"
+    end
+
+    def checkoff_todo id
+        table = @world[:todos]
+        if table.exists? id
+            @world[:todos].set(:check, id, "CHECK")
+            puts "check-o-roonie"
+        else
+            puts "todo #{id} not found"
+        end
+    end
+
+    def dump_file filename
+        file = File.open filename, 'w'
+        @world.dump_text file
+        file.close
+        puts "wrote #{filename}"
+    end
+
+    def link dest_id
+        player = get_avatar()
+        src = Surface.new @world, player.surface.id
+        dst = Surface.new @world, dest_id
+        if src.nil?
+            puts "no source"
+        elsif dst.invalid?
+            puts "destination not found"
+        else
+            n1 = src.edge_max_plus
+            n2 = dst.edge_max_plus
+            e1 = @world.generate_id
+            e2 = @world.generate_id
+            edges = @world.edges
+            edges.insert e1, :surface_id => src.id, :index => n1, :to_edge_id => e2
+            edges.insert e2, :surface_id => dst.id, :index => n2, :to_edge_id => e1
+            puts "linked to #{dst.name}"
+        end
+    end
+
+    def unlink dest_id
+        player = get_avatar()
+        src = Surface.new @world, player.surface.id
+        dst = Surface.new @world, dest_id
+        if src.nil?
+            puts "no source"
+        elsif dst.invalid?
+            puts "destination not found"
+        else
+            n = src.delete_edges_to dst.id
+            puts "deleted #{n} edges"
+        end
+    end
+
+    def get_avatar
+        Mob.new(@world, @player_id).thing
     end
 
     def hud_report

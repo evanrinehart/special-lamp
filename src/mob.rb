@@ -10,6 +10,7 @@ class Mob < Entity
         @powerbars = world.powerbars
         thing_id = @mobs.get(:object_id, mob_id)
         @thing = Thing.new(world, thing_id)
+        @world = world
     end
 
     def thing
@@ -22,7 +23,7 @@ class Mob < Entity
 
     def surface
         surf_id = @thing.on_surface_id
-        surf_id && @surfaces[surf_id]
+        surf_id && Surface.new(@world, surf_id)
     end
 
     def things

@@ -132,6 +132,12 @@ class ClassData
         rows
     end
 
+    def to_rows
+        @idlist.map do |id|
+            RowProxy.new(self,id).to_h
+        end
+    end
+
     def dump
         table = self.to_table
         widths = table.transpose.map{|col| col.map{|x| x.to_s.length}.max }
@@ -267,6 +273,35 @@ class SomeWorld
             puts ""
         end
     end
+
+    def dump_text io=$stdout
+        @tables.each do |class_name,table|
+            io.puts "addclass #{class_name}"
+        end
+        @tables.each do |class_name,table|
+            table.props.each do |prop|
+                default = table.default_for prop
+                io.puts "addprop #{class_name} #{prop} #{default.inspect}"
+            end
+        end
+        @tables.each do |class_name,table|
+            table.idlist.each do |id|
+                io.puts "spawnid #{class_name} #{id}"
+            end
+        end
+        @tables.each do |class_name,table|
+            table.props.each do |prop|
+                default = table.default_for prop
+                table.idlist.each do |id|
+                    v = table.get(prop, id)
+                    if v != default
+                        io.puts "set #{class_name} #{id} #{prop} #{v.inspect}"
+                    end
+                end
+            end
+        end
+    end
+
 
     def dump_schema
         @tables.each do |name,table|
