@@ -16,6 +16,9 @@ class CommandFilter
         #pp cmd: cmd, args: args
 
         case cmd
+        in "l" then look args
+        in "i" then app.inventory
+
         in "n" then app.go :n
         in "e" then app.go :e
         in "s" then app.go :s
@@ -34,8 +37,6 @@ class CommandFilter
         in "save" then app.save
         in "forget" then app.revert
         in "schema" then app.schema
-        in "l" then app.look
-        in "i" then app.inventory
         in "d" then dump args
         in "df" then dump_file args
         in "wait" then app.wait args[0].to_i
@@ -207,6 +208,18 @@ class CommandFilter
         end
     end
 
+    def look args
+        if args.empty?
+            app.look
+        else
+            if args[0] =~ /\A\d+\z/
+                app.look_dir args[0].to_i
+            else
+                app.look_dir args[0].to_sym
+            end
+        end
+    end
+
 end
 
 class App
@@ -256,15 +269,55 @@ class App
     def look
         player = Mob.new(@world, @player_id).thing
         surf = player.on_surface
-        if surf.nil?
+        look_room surf, player
+    end
+
+    def look_dir direction
+        player = self.get_avatar
+        surf = player.on_surface
+        edges = surf.edges.sort_by{|e| e.index}
+        way = nil
+        edges.each do |e|
+            if e.shortcut == direction
+                way = e
+                break
+            elsif e.index == direction
+                way = e
+                break
+            end
+        end
+        if way.nil?
+            puts "#{direction}..."
+        else
+            surf = way.to_surface
+            if surf.outer?
+                outside = surf.host_object.on_surface
+                if outside
+                    puts "(outside) #{outside.name}"
+                else
+                    puts "A featureless cyan mist."
+                end
+            else
+                look_room surf, player, :show_exits => false
+            end
+        end
+    end
+
+    def look_room surface, player, show_exits: true
+        if surface.nil?
             puts "(nowhere)"
         else
-            puts surf.name
-            surf.things.each do |thing|
+            if surface.outer?
+                env = surface.host_object.on_surface
+                puts "#{surface.name} (#{env.name})"
+            else
+                puts surface.name
+            end
+            surface.things.each do |thing|
                 next if thing.id == player.id
                 puts "  #{thing.name}"
             end
-            list_exits
+            list_exits if show_exits
         end
     end
 
@@ -578,7 +631,7 @@ class App
     def fall
         player = self.get_avatar
         here = player.on_surface
-        if here.nil? || !here.outer
+        if here.nil? || !here.outer?
             puts "fall command works best outside"
         else
             thing = player.on_surface.host_object

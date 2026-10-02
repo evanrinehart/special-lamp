@@ -18,7 +18,7 @@ class Surface < Entity
         @surfaces.get(:size, @id)
     end
 
-    def outer
+    def outer?
         @surfaces.get(:outer, @id)
     end
 
