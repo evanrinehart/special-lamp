@@ -42,6 +42,11 @@ class ClassData
         RowProxy.new(self, id)
     end
 
+    def first
+        id = @idlist.first
+        id && self[id]
+    end
+
     def get(prop, id)
         column = @columns.fetch(prop) do
             raise "#{@name} doesn't have prop #{prop}"

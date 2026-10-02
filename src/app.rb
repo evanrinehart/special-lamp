@@ -214,7 +214,7 @@ class App
     def initialize(world, filename="world.save")
         @filename = filename
         @world = world
-        @player_id = 5
+        @player_id = world.players.first.mob_id
         @reloadables = [
             'entity.rb',
             'surface.rb',

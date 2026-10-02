@@ -5,6 +5,7 @@ addclass surfaces
 addclass edges
 addclass size_hints
 addclass todos
+addclass players
 addprop mobs object_id nil
 addprop mobs health_id nil
 addprop mobs oxygen_id nil
@@ -30,6 +31,7 @@ addprop size_hints size 10
 addprop size_hints note ""
 addprop todos note ""
 addprop todos check ""
+addprop players mob_id nil
 spawnid mobs 5
 spawnid powerbars 9
 spawnid powerbars 10
@@ -72,6 +74,7 @@ spawnid todos 34
 spawnid todos 35
 spawnid todos 38
 spawnid todos 46
+spawnid players 50
 set mobs 5 object_id 14
 set mobs 5 health_id 9
 set mobs 5 oxygen_id 10
@@ -83,7 +86,7 @@ set objects 13 name "ration"
 set objects 14 name "Player"
 set objects 15 name "Ship 15"
 set objects 13 on_surface_id 16
-set objects 14 on_surface_id 49
+set objects 14 on_surface_id 16
 set objects 15 on_surface_id 49
 set objects 11 container_id 14
 set objects 12 container_id 14
@@ -170,4 +173,6 @@ set todos 31 check "CHECK"
 set todos 32 check "CHECK"
 set todos 33 check "CHECK"
 set todos 34 check "CHECK"
+set todos 35 check "CHECK"
 set todos 46 check "CHECK"
+set players 50 mob_id 5
