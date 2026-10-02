@@ -315,43 +315,6 @@ class App
         end
     end
 
-    def climb thing_id
-        player = self.get_avatar
-        surface = player.on_surface
-        thing = surface.thing_by_id thing_id
-        if thing.nil?
-            puts "no such thing"
-        elsif thing_id == player.id
-            puts "ill-advised"
-        elsif player.size > thing.size
-            puts "ill-advised"
-        else
-            surfs = thing.outer_surfaces
-            if surfs.empty?
-                puts "#{thing.name} can't be climbed"
-            else
-                player.move_to_surface surfs.first.id
-                puts "climbing onto #{thing.name}"
-            end
-        end
-    end
-
-    def fall
-        player = self.get_avatar
-        here = player.on_surface
-        if here.nil? || !here.outer
-            puts "fall command works best outside"
-        else
-            thing = player.on_surface.host_object
-            if thing.nil? || thing.on_surface_id.nil?
-                puts "nowhere to fall to"
-            else
-                surroundings = thing.on_surface
-                player.move_to_surface surroundings.id
-                puts "moved from #{thing.name} to #{surroundings.name}"
-            end
-        end
-    end
 
     def set(klass, id, field, value)
         table = @world[klass]
@@ -580,9 +543,50 @@ class App
             dest = way.to_surface
             if player.size <= dest.size
                 player.move_to_surface dest.id
-                puts "moved to #{dest.name}"
+                #puts "moved to #{dest.name}"
+                look
             else
                 puts "As it stands you'd never fit."
+            end
+        end
+    end
+
+    def climb thing_id
+        player = self.get_avatar
+        surface = player.on_surface
+        thing = surface.thing_by_id thing_id
+        if thing.nil?
+            puts "no such thing"
+        elsif thing_id == player.id
+            puts "ill-advised"
+        elsif player.size > thing.size
+            puts "ill-advised"
+        else
+            surfs = thing.outer_surfaces
+            if surfs.empty?
+                puts "#{thing.name} can't be climbed"
+            else
+                player.move_to_surface surfs.first.id
+                #puts "climbing onto #{thing.name}"
+                look
+            end
+        end
+    end
+
+    def fall
+        player = self.get_avatar
+        here = player.on_surface
+        if here.nil? || !here.outer
+            puts "fall command works best outside"
+        else
+            thing = player.on_surface.host_object
+            if thing.nil? || thing.on_surface_id.nil?
+                puts "nowhere to fall to"
+            else
+                surroundings = thing.on_surface
+                player.move_to_surface surroundings.id
+                #puts "moved from #{thing.name} to #{surroundings.name}"
+                look
             end
         end
     end
