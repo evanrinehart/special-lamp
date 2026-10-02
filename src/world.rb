@@ -132,6 +132,26 @@ class ClassData
         rows
     end
 
+    def to_table_text
+        rows = []
+        heading = []
+        heading.push @name.to_s
+        props = @columns.keys
+        props.each do |k|
+            heading.push k.to_s
+        end
+        rows.push heading
+        @idlist.each do |id|
+            row = [id.to_s]
+            props.each do |k|
+                value = get(k,id)
+                row.push(value.is_a?(String) ? value : value.inspect)
+            end
+            rows.push row
+        end
+        rows
+    end
+
     def to_rows
         @idlist.map do |id|
             RowProxy.new(self,id).to_h
@@ -139,13 +159,11 @@ class ClassData
     end
 
     def dump
-        table = self.to_table
-        widths = table.transpose.map{|col| col.map{|x| x.to_s.length}.max }
+        table = self.to_table_text
+        widths = table.transpose.map{|col| col.map{|x| x.length}.max }
         table.each do |row|
-            puts row.each_with_index.map { |value, i|
-                repr = value.nil? ? "nil" : value.to_s
-                repr.ljust(widths[i])
-            }.join("  ")
+            elems = row.each_with_index.map { |value, i| value.ljust(widths[i]) }
+            puts elems.join("  ")
         end
     end
 
