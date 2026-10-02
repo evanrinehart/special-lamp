@@ -7,6 +7,7 @@ class Thing < Entity
         @mobs = world.mobs
         @things = world.objects
         @surfaces = world.surfaces
+        @world = world
     end
 
     def move_to_container(thing_id)
@@ -25,7 +26,7 @@ class Thing < Entity
 
     def surface
         surf_id = on_surface_id
-        surf_id && @surfaces[surf_id]
+        surf_id && Surface.new(@world, surf_id)
     end
 
     def size

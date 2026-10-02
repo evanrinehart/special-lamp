@@ -23,6 +23,8 @@ addprop surfaces size 10
 addprop edges surface_id nil
 addprop edges index 0
 addprop edges to_edge_id nil
+addprop edges form "passage"
+addprop edges shortcut nil
 addprop size_hints size 10
 addprop size_hints note ""
 addprop todos note ""
@@ -46,11 +48,20 @@ spawnid edges 23
 spawnid edges 24
 spawnid edges 36
 spawnid edges 37
+spawnid edges 47
+spawnid edges 48
 spawnid size_hints 25
 spawnid size_hints 26
 spawnid size_hints 27
 spawnid size_hints 28
 spawnid size_hints 29
+spawnid size_hints 39
+spawnid size_hints 40
+spawnid size_hints 41
+spawnid size_hints 42
+spawnid size_hints 43
+spawnid size_hints 44
+spawnid size_hints 45
 spawnid todos 30
 spawnid todos 31
 spawnid todos 32
@@ -58,6 +69,7 @@ spawnid todos 33
 spawnid todos 34
 spawnid todos 35
 spawnid todos 38
+spawnid todos 46
 set mobs 5 object_id 14
 set mobs 5 health_id 9
 set mobs 5 oxygen_id 10
@@ -69,7 +81,7 @@ set objects 13 name "ration"
 set objects 14 name "Player"
 set objects 15 name "Ship 15"
 set objects 13 on_surface_id 16
-set objects 14 on_surface_id 17
+set objects 14 on_surface_id 16
 set objects 11 container_id 14
 set objects 12 container_id 14
 set objects 11 size 6
@@ -97,23 +109,48 @@ set edges 23 surface_id 17
 set edges 24 surface_id 20
 set edges 36 surface_id 17
 set edges 37 surface_id 19
+set edges 47 surface_id 16
+set edges 48 surface_id 18
 set edges 23 index 1
 set edges 36 index 2
+set edges 47 index 1
 set edges 21 to_edge_id 22
 set edges 22 to_edge_id 21
 set edges 23 to_edge_id 24
 set edges 24 to_edge_id 23
 set edges 36 to_edge_id 37
 set edges 37 to_edge_id 36
+set edges 47 to_edge_id 48
+set edges 48 to_edge_id 47
+set edges 21 shortcut :n
+set edges 22 shortcut :s
+set edges 23 shortcut :w
+set edges 24 shortcut :e
+set edges 36 shortcut :n
+set edges 37 shortcut :s
 set size_hints 25 size 6
 set size_hints 26 size 7
 set size_hints 27 size 9
 set size_hints 29 size 12
+set size_hints 39 size 21
+set size_hints 40 size 22
+set size_hints 41 size 23
+set size_hints 42 size 24
+set size_hints 43 size 25
+set size_hints 44 size 31
+set size_hints 45 size 41
 set size_hints 25 note "size of a CPU chip"
 set size_hints 26 note "size of a hammer"
 set size_hints 27 note "size of a humanoid"
 set size_hints 28 note "roughly a 15' or 5m room (standard room)"
 set size_hints 29 note "comparable to a 50m ship"
+set size_hints 39 note "large moon"
+set size_hints 40 note "mars-sized"
+set size_hints 41 note "earth or venus sized"
+set size_hints 42 note "neptune-sized"
+set size_hints 43 note "jupiter-sized"
+set size_hints 44 note "1 AU"
+set size_hints 45 note "100,000 AU (1.6 ly)"
 set todos 30 note "dump text database"
 set todos 31 note "command to add links between rooms"
 set todos 32 note "add command to append a todo note"
@@ -121,8 +158,10 @@ set todos 33 note "add passages out of current area to \"look\""
 set todos 34 note "add command to check off todo"
 set todos 35 note "make the current avatar not hard coded"
 set todos 38 note "add way to create database from text dump"
+set todos 46 note "add real movement commands"
 set todos 30 check "CHECK"
 set todos 31 check "CHECK"
 set todos 32 check "CHECK"
 set todos 33 check "CHECK"
 set todos 34 check "CHECK"
+set todos 46 check "CHECK"

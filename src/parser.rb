@@ -3,7 +3,7 @@ def parse_value(string)
         Integer(string)
     elsif /\A-?\d+.\d+\z/ =~ string
         Float(string)
-    elsif /\A:[A-Za-z_][A-Za-z0-9_]+\z/ =~ string
+    elsif /\A:[A-Za-z_][A-Za-z0-9_]*\z/ =~ string
         string[1..].to_sym
     elsif /\Anil\z/ =~ string
         nil

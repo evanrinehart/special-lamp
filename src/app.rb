@@ -16,6 +16,17 @@ class CommandFilter
         #pp cmd: cmd, args: args
 
         case cmd
+        in "n" then app.go :n
+        in "e" then app.go :e
+        in "s" then app.go :s
+        in "w" then app.go :w
+        in "u" then app.go :u
+        in "down" then app.go :d
+        in "f" then app.go_forward
+        in "b" then app.go_back
+        in "go" then go args
+        in "exits" then app.list_exits
+
         in "r" then app.reload
         in "save" then app.save
         in "forget" then app.revert
@@ -24,7 +35,8 @@ class CommandFilter
         in "i" then app.inventory
         in "d" then dump args
         in "df" then dump_file args
-        in "w" then app.wait args[0].to_i
+        in "wait" then app.wait args[0].to_i
+        in "." then app.wait args[0].to_i
         in "set" then set args
         in "move" then app.move args[0].to_i, args[1].to_i
         in "drop" then app.drop args[0].to_i
@@ -41,6 +53,15 @@ class CommandFilter
         in "link" then link args
         in "unlink" then unlink args
         in "q" then return :stop
+        in "diagesis" then
+            puts "The following commands work \"in universe\" so far:"
+            puts "  l"
+            puts "  i"
+            puts "  exits"
+            puts "  go <exit>"
+            puts "  . <n>"
+            puts "  take <object>"
+            puts "  drop <object>"
         else puts "unknown command"
         end
         nil
@@ -165,6 +186,16 @@ class CommandFilter
         end
     end
 
+    def go args
+        if args.empty?
+            puts "hint: go <letter or number>"
+        elsif args[0] =~ /\A\d+\z/
+            app.go args[0].to_i
+        else
+            app.go args[0].to_sym
+        end
+    end
+
 end
 
 class App
@@ -212,19 +243,17 @@ class App
     end
 
     def look
-        player = Mob.new(@world, @player_id)
+        player = Mob.new(@world, @player_id).thing
         surf = player.surface
         if surf.nil?
             puts "(nowhere)"
         else
             puts surf.name
             surf.things.each do |thing|
+                next if thing.id == player.id
                 puts "  #{thing.name}"
             end
-            surf.edges.each do |edge|
-                to_surf = edge.to_edge.surface
-                puts "  passage to #{to_surf.name}"
-            end
+            list_exits
         end
     end
 
@@ -447,7 +476,7 @@ class App
     end
 
     def unlink dest_id
-        player = get_avatar()
+        player = self.get_avatar
         src = Surface.new @world, player.surface.id
         dst = Surface.new @world, dest_id
         if src.nil?
@@ -470,6 +499,57 @@ class App
         oxygen = player.oxygen
         puts "HEALTH #{health.value.to_s.rjust(3)}" if health && health.value < health.value_max
         puts "OXYGEN #{oxygen.value.to_s.rjust(3)}" if oxygen && oxygen.value < oxygen.value_max
+    end
+
+    def go direction
+        player = self.get_avatar
+        surf = player.surface
+        edges = surf.edges.sort_by{|e| e.index}
+        way = nil
+        edges.each do |e|
+            if e.shortcut == direction
+                way = e
+                break
+            elsif e.index == direction
+                way = e
+                break
+            end
+        end
+        if way.nil?
+            puts "way not found (see exits command)"
+        else
+            dest = way.to_surface
+            if player.size <= dest.size
+                player.move_to_surface dest.id
+                puts "moved to #{dest.name}"
+            else
+                puts "As it stands you'd never fit."
+            end
+        end
+    end
+
+    def go_forward
+        puts "CHARGE AHEAD!!!"
+    end
+
+    def go_back
+        puts "backtracking..."
+    end
+
+    def list_exits
+        player = self.get_avatar
+        surf = player.surface
+        entries = []
+        surf.edges.each do |edge|
+            dest = edge.to_surface
+            sc = edge.shortcut
+            label = sc ? sc.to_s : "go #{edge.index}"
+            entries.push({:label => label, :form => edge.form, :to_name => dest.name})
+        end
+        width = entries.map{|x| x[:label].length}.max
+        entries.each do |entry|
+            puts "#{entry[:label].ljust(width)} - #{entry[:form]} to #{entry[:to_name]}"
+        end
     end
 
     def prompt

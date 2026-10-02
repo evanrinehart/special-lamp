@@ -16,12 +16,28 @@ class Edge < Entity
         @edges.get(:to_edge_id, @id)
     end
 
+    def form
+        @edges.get(:form, @id)
+    end
+
+    def index
+        @edges.get(:index, @id)
+    end
+
+    def shortcut
+        @edges.get(:shortcut, @id)
+    end
+
     def surface
-        @surfaces[surface_id]
+        Surface.new(@world, surface_id)
     end
 
     def to_edge
         Edge.new(@world, to_edge_id)
+    end
+
+    def to_surface
+        to_edge.surface
     end
 
     def goes_to_surface? surface_id
