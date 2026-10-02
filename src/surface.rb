@@ -18,6 +18,13 @@ class Surface < Entity
         @surfaces.get(:size, @id)
     end
 
+    def thing_by_id thing_id
+        things.each do |thing|
+            return Thing.new(@world, thing_id) if thing.id == thing_id
+        end
+        nil
+    end
+
     def edge_max_plus
         indices = @edges.find_by(:surface_id, @id).map{|x| x.index}
         indices.empty? ? 0 : indices.max + 1

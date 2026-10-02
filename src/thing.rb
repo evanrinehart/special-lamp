@@ -37,4 +37,15 @@ class Thing < Entity
         not @mobs.find_by(:object_id, @id).empty?
     end
 
+    def contents
+        @things.find_by(:container_id, @id)
+    end
+
+    def get_contents_by_id thing_id
+        contents.each do |thing|
+            return Thing.new(@world, thing_id) if thing.id == thing_id
+        end
+        nil
+    end
+
 end

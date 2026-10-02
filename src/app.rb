@@ -261,7 +261,7 @@ class App
         player = Mob.new(@world, @player_id)
         things = player.things
         if things.empty?
-            puts "you're empty handed!"
+            puts "You're empty handed!"
         else
             things.each do |thing|
                 puts "  #{thing.name}"
@@ -271,12 +271,12 @@ class App
 
     def drop item_id
         player = Mob.new(@world, @player_id).thing
+        thing = player.get_contents_by_id item_id
         surf = player.surface
-        thing = Thing.new(@world, item_id)
-        if surf.nil?
-            puts "nowhere to drop it"
-        elsif thing.invalid?
+        if thing.nil?
             puts "no such thing"
+        elsif surf.nil?
+            puts "nowhere to drop it"
         else
             thing.move_to_surface surf.id
             puts "#{thing.name} dropped"
@@ -285,12 +285,22 @@ class App
 
     def take item_id
         player = Mob.new(@world, @player_id).thing
-        thing = Thing.new(@world, item_id)
-        if thing.invalid?
+        surface = player.surface
+        thing = surface.thing_by_id item_id
+        if thing.nil?
             puts "no such thing"
         else
-            thing.move_to_container player.id
-            puts "#{thing.name} taken"
+            size_diff = thing.size - player.size
+            if size_diff >= 3
+                puts "Are you Carmen San Diego?"
+            elsif size_diff >= 1
+                puts "#{thing.name} is way too big."
+            elsif size_diff >= 0
+                puts "Roll a strength check. Failed"
+            else
+                thing.move_to_container player.id
+                puts "#{thing.name} taken"
+            end
         end
     end
 
