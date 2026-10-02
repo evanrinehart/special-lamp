@@ -17,6 +17,7 @@ class CommandFilter
 
         case cmd
         in "l" then look args
+        in "ll" then app.look_around
         in "i" then app.inventory
 
         in "n" then app.go :n
@@ -59,10 +60,13 @@ class CommandFilter
         in "q" then return :stop
         in "diagesis" then
             puts "The following commands work \"in universe\" so far:"
-            puts "  l"
+            puts "  l [direction]"
+            puts "  ll"
             puts "  i"
             puts "  exits"
             puts "  go <exit>"
+            puts "  climb <object>"
+            puts "  fall"
             puts "  . <n>"
             puts "  take <object>"
             puts "  drop <object>"
@@ -272,6 +276,21 @@ class App
         look_room surf, player
     end
 
+    def look_around
+        player = Mob.new(@world, @player_id).thing
+        surf = player.on_surface
+        if surf.outer?
+            env = surf.host_object.on_surface
+            if env.nil?
+                puts mist
+            else
+                look_room env, player
+            end
+        else
+            look_room surf, player
+        end
+    end
+
     def look_dir direction
         player = self.get_avatar
         surf = player.on_surface
@@ -295,7 +314,7 @@ class App
                 if outside
                     puts "(outside) #{outside.name}"
                 else
-                    puts "A featureless cyan mist."
+                    puts mist
                 end
             else
                 look_room surf, player, :show_exits => false
@@ -672,6 +691,10 @@ class App
 
     def prompt
         "> "
+    end
+
+    def mist
+        "A featureless cyan mist"
     end
 
 end
