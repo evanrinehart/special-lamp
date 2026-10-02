@@ -27,6 +27,9 @@ class CommandFilter
         in "go" then go args
         in "exits" then app.list_exits
 
+        in "climb" then climb args
+        in "fall" then app.fall
+
         in "r" then app.reload
         in "save" then app.save
         in "forget" then app.revert
@@ -196,6 +199,14 @@ class CommandFilter
         end
     end
 
+    def climb args
+        if args.empty?
+            puts "hint: climb <object>"
+        else
+            app.climb args[0].to_i
+        end
+    end
+
 end
 
 class App
@@ -244,7 +255,7 @@ class App
 
     def look
         player = Mob.new(@world, @player_id).thing
-        surf = player.surface
+        surf = player.on_surface
         if surf.nil?
             puts "(nowhere)"
         else
@@ -272,7 +283,7 @@ class App
     def drop item_id
         player = Mob.new(@world, @player_id).thing
         thing = player.get_contents_by_id item_id
-        surf = player.surface
+        surf = player.on_surface
         if thing.nil?
             puts "no such thing"
         elsif surf.nil?
@@ -285,7 +296,7 @@ class App
 
     def take item_id
         player = Mob.new(@world, @player_id).thing
-        surface = player.surface
+        surface = player.on_surface
         thing = surface.thing_by_id item_id
         if thing.nil?
             puts "no such thing"
@@ -300,6 +311,44 @@ class App
             else
                 thing.move_to_container player.id
                 puts "#{thing.name} taken"
+            end
+        end
+    end
+
+    def climb thing_id
+        player = self.get_avatar
+        surface = player.on_surface
+        thing = surface.thing_by_id thing_id
+        if thing.nil?
+            puts "no such thing"
+        elsif thing_id == player.id
+            puts "ill-advised"
+        elsif player.size > thing.size
+            puts "ill-advised"
+        else
+            surfs = thing.outer_surfaces
+            if surfs.empty?
+                puts "#{thing.name} can't be climbed"
+            else
+                player.move_to_surface surfs.first.id
+                puts "climbing onto #{thing.name}"
+            end
+        end
+    end
+
+    def fall
+        player = self.get_avatar
+        here = player.on_surface
+        if here.nil? || !here.outer
+            puts "fall command works best outside"
+        else
+            thing = player.on_surface.host_object
+            if thing.nil? || thing.on_surface_id.nil?
+                puts "nowhere to fall to"
+            else
+                surroundings = thing.on_surface
+                player.move_to_surface surroundings.id
+                puts "moved from #{thing.name} to #{surroundings.name}"
             end
         end
     end
@@ -467,7 +516,7 @@ class App
 
     def link dest_id
         player = get_avatar()
-        src = Surface.new @world, player.surface.id
+        src = Surface.new @world, player.on_surface.id
         dst = Surface.new @world, dest_id
         if src.nil?
             puts "no source"
@@ -487,7 +536,7 @@ class App
 
     def unlink dest_id
         player = self.get_avatar
-        src = Surface.new @world, player.surface.id
+        src = Surface.new @world, player.on_surface.id
         dst = Surface.new @world, dest_id
         if src.nil?
             puts "no source"
@@ -513,7 +562,7 @@ class App
 
     def go direction
         player = self.get_avatar
-        surf = player.surface
+        surf = player.on_surface
         edges = surf.edges.sort_by{|e| e.index}
         way = nil
         edges.each do |e|
@@ -548,7 +597,7 @@ class App
 
     def list_exits
         player = self.get_avatar
-        surf = player.surface
+        surf = player.on_surface
         entries = []
         surf.edges.each do |edge|
             dest = edge.to_surface

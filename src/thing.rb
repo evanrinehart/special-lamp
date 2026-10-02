@@ -24,9 +24,19 @@ class Thing < Entity
         @things.get(:on_surface_id, @id)
     end
 
-    def surface
+    def on_surface
         surf_id = on_surface_id
         surf_id && Surface.new(@world, surf_id)
+    end
+
+    def surfaces
+        @surfaces.find_by(:object_id, @id).map do |surf|
+            Surface.new(@world, surf.id)
+        end
+    end
+
+    def outer_surfaces
+        surfaces.filter{|x| x.outer}
     end
 
     def size

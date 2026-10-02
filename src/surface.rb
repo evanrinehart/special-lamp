@@ -18,6 +18,19 @@ class Surface < Entity
         @surfaces.get(:size, @id)
     end
 
+    def outer
+        @surfaces.get(:outer, @id)
+    end
+
+    def host_object_id
+        @surfaces.get(:object_id, @id)
+    end
+
+    def host_object
+        thing_id = self.host_object_id
+        thing_id && Thing.new(@world, thing_id)
+    end
+
     def thing_by_id thing_id
         things.each do |thing|
             return Thing.new(@world, thing_id) if thing.id == thing_id

@@ -20,6 +20,7 @@ addprop surfaces name "(somewhere)"
 addprop surfaces object_id nil
 addprop surfaces inverse true
 addprop surfaces size 10
+addprop surfaces outer false
 addprop edges surface_id nil
 addprop edges index 0
 addprop edges to_edge_id nil
@@ -42,6 +43,7 @@ spawnid surfaces 17
 spawnid surfaces 18
 spawnid surfaces 19
 spawnid surfaces 20
+spawnid surfaces 49
 spawnid edges 21
 spawnid edges 22
 spawnid edges 23
@@ -81,7 +83,8 @@ set objects 13 name "ration"
 set objects 14 name "Player"
 set objects 15 name "Ship 15"
 set objects 13 on_surface_id 16
-set objects 14 on_surface_id 16
+set objects 14 on_surface_id 49
+set objects 15 on_surface_id 49
 set objects 11 container_id 14
 set objects 12 container_id 14
 set objects 11 size 6
@@ -94,6 +97,7 @@ set surfaces 17 name "Loading Bay"
 set surfaces 18 name "Supply Closet"
 set surfaces 19 name "Navigation"
 set surfaces 20 name "Outside Ship 15"
+set surfaces 49 name "Some Lavatube Somewhere"
 set surfaces 16 object_id 15
 set surfaces 17 object_id 15
 set surfaces 18 object_id 15
@@ -103,6 +107,8 @@ set surfaces 20 inverse false
 set surfaces 17 size 11
 set surfaces 18 size 9
 set surfaces 20 size 12
+set surfaces 49 size 14
+set surfaces 20 outer true
 set edges 21 surface_id 16
 set edges 22 surface_id 17
 set edges 23 surface_id 17
