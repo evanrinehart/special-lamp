@@ -541,12 +541,14 @@ class App
             puts "way not found (see exits command)"
         else
             dest = way.to_surface
-            if player.size <= dest.size
+            if player.size > dest.size
+                puts "As it stands you'd never fit."
+            elsif way.blocked?
+                puts "That way is blocked."
+            else
                 player.move_to_surface dest.id
                 #puts "moved to #{dest.name}"
                 look
-            else
-                puts "As it stands you'd never fit."
             end
         end
     end

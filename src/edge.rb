@@ -20,6 +20,10 @@ class Edge < Entity
         @edges.get(:form, @id)
     end
 
+    def blocked?
+        @edges.get(:blocked, @id)
+    end
+
     def index
         @edges.get(:index, @id)
     end

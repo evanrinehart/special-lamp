@@ -27,6 +27,7 @@ addprop edges index 0
 addprop edges to_edge_id nil
 addprop edges form "passage"
 addprop edges shortcut nil
+addprop edges blocked false
 addprop size_hints size 10
 addprop size_hints note ""
 addprop todos note ""
@@ -54,6 +55,8 @@ spawnid edges 36
 spawnid edges 37
 spawnid edges 47
 spawnid edges 48
+spawnid edges 51
+spawnid edges 52
 spawnid size_hints 25
 spawnid size_hints 26
 spawnid size_hints 27
@@ -86,7 +89,7 @@ set objects 13 name "ration"
 set objects 14 name "Player"
 set objects 15 name "Ship 15"
 set objects 13 on_surface_id 16
-set objects 14 on_surface_id 16
+set objects 14 on_surface_id 19
 set objects 15 on_surface_id 49
 set objects 11 container_id 14
 set objects 12 container_id 14
@@ -120,9 +123,13 @@ set edges 36 surface_id 17
 set edges 37 surface_id 19
 set edges 47 surface_id 16
 set edges 48 surface_id 18
+set edges 51 surface_id 19
+set edges 52 surface_id 20
 set edges 23 index 1
 set edges 36 index 2
 set edges 47 index 1
+set edges 51 index 1
+set edges 52 index 1
 set edges 21 to_edge_id 22
 set edges 22 to_edge_id 21
 set edges 23 to_edge_id 24
@@ -131,12 +138,18 @@ set edges 36 to_edge_id 37
 set edges 37 to_edge_id 36
 set edges 47 to_edge_id 48
 set edges 48 to_edge_id 47
+set edges 51 to_edge_id 52
+set edges 52 to_edge_id 51
+set edges 51 form "window"
+set edges 52 form "window"
 set edges 21 shortcut :n
 set edges 22 shortcut :s
 set edges 23 shortcut :w
 set edges 24 shortcut :e
 set edges 36 shortcut :n
 set edges 37 shortcut :s
+set edges 51 blocked true
+set edges 52 blocked true
 set size_hints 25 size 6
 set size_hints 26 size 7
 set size_hints 27 size 9
