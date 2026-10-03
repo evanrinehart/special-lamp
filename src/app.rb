@@ -284,7 +284,7 @@ class App
             if env.nil?
                 puts mist
             else
-                look_room env, player
+                look_room env, player, :show_exits => false
             end
         else
             look_room surf, player
