@@ -20,6 +20,17 @@ class Thing < Entity
         @things.set(:on_surface_id, @id, surface_id)
     end
 
+    def set_location loc
+        @things.set(:x, @id, loc[0])
+        @things.set(:y, @id, loc[1])
+    end
+
+    def clear_location
+        @things.set(:x, @id, nil)
+        @things.set(:y, @id, nil)
+    end
+
+
     def on_surface_id
         @things.get(:on_surface_id, @id)
     end
@@ -33,6 +44,22 @@ class Thing < Entity
         @surfaces.find_by(:object_id, @id).map do |surf|
             Surface.new(@world, surf.id)
         end
+    end
+
+    def x
+        @things.get(:x, @id)
+    end
+
+    def y
+        @things.get(:y, @id)
+    end
+
+    def location
+        x && y && Vector[x,y]
+    end
+
+    def located?
+        location != nil
     end
 
     def outer_surfaces

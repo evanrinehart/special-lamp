@@ -18,6 +18,8 @@ addprop objects name "(empty)"
 addprop objects on_surface_id nil
 addprop objects container_id nil
 addprop objects size 10
+addprop objects x nil
+addprop objects y nil
 addprop surfaces name "(somewhere)"
 addprop surfaces object_id nil
 addprop surfaces inverse true
@@ -45,6 +47,7 @@ spawnid objects 12
 spawnid objects 13
 spawnid objects 14
 spawnid objects 15
+spawnid objects 55
 spawnid surfaces 16
 spawnid surfaces 17
 spawnid surfaces 18
@@ -82,6 +85,8 @@ spawnid todos 35
 spawnid todos 38
 spawnid todos 46
 spawnid todos 53
+spawnid todos 56
+spawnid todos 57
 spawnid players 50
 spawnid tube_geometries 54
 set mobs 5 object_id 14
@@ -94,9 +99,11 @@ set objects 12 name "spanner"
 set objects 13 name "ration"
 set objects 14 name "Player"
 set objects 15 name "Ship 15"
+set objects 55 name "Truck"
 set objects 13 on_surface_id 16
-set objects 14 on_surface_id 49
+set objects 14 on_surface_id 16
 set objects 15 on_surface_id 49
+set objects 55 on_surface_id 49
 set objects 11 container_id 14
 set objects 12 container_id 14
 set objects 11 size 6
@@ -104,6 +111,10 @@ set objects 12 size 7
 set objects 13 size 7
 set objects 14 size 9
 set objects 15 size 12
+set objects 15 x 1000.0
+set objects 55 x 1100.0
+set objects 15 y 0.0
+set objects 55 y 50.0
 set surfaces 16 name "Cryochamber"
 set surfaces 17 name "Loading Bay"
 set surfaces 18 name "Supply Closet"
@@ -154,6 +165,8 @@ set edges 23 shortcut :w
 set edges 24 shortcut :e
 set edges 36 shortcut :n
 set edges 37 shortcut :s
+set edges 51 shortcut :n
+set edges 52 shortcut :s
 set edges 51 blocked true
 set edges 52 blocked true
 set size_hints 25 size 6
@@ -188,6 +201,8 @@ set todos 35 note "make the current avatar not hard coded"
 set todos 38 note "add way to create database from text dump"
 set todos 46 note "add real movement commands"
 set todos 53 note "detailed movement outside"
+set todos 56 note "l should list things visible on ship surface"
+set todos 57 note "it's dark. l should show distant lights"
 set todos 30 check "CHECK"
 set todos 31 check "CHECK"
 set todos 32 check "CHECK"

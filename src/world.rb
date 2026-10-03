@@ -61,7 +61,11 @@ class ClassData
             raise "#{@name} doesn't have prop #{prop}"
         end
         if exists? id
-            column[id] = value
+            if value == default_for(prop)
+                column.delete id
+            else
+                column[id] = value
+            end
         else
             raise "#{@name} id=#{id} doesn't exist"
         end
@@ -102,6 +106,13 @@ class ClassData
             results.push RowProxy.new(self,id) if a==b
         end
         results
+    end
+
+    def find_first_by(prop, a)
+        @columns[prop].each do |id,b|
+            return RowProxy.new(self,id) if a==b
+        end
+        nil
     end
 
     def add_prop(prop, value)

@@ -34,6 +34,8 @@ class CommandFilter
         in "climb" then climb args
         in "fall" then app.fall
 
+        in "range" then range args
+
         in "r" then app.reload
         in "save" then app.save
         in "forget" then app.revert
@@ -209,6 +211,14 @@ class CommandFilter
             puts "hint: climb <object>"
         else
             app.climb args[0].to_i
+        end
+    end
+
+    def range args
+        if args.empty?
+            puts "hint: range <object>"
+        else
+            app.range args[0].to_i
         end
     end
 
@@ -609,6 +619,7 @@ class App
                 break
             end
         end
+
         if way.nil?
             puts "way not found (see exits command)"
         else
@@ -619,6 +630,12 @@ class App
                 puts "That way is blocked."
             else
                 player.move_to_surface dest.id
+                if dest.simple?
+                    player.clear_location
+                else
+                    # to be revisited
+                    puts "moved to a non-simple surface with go?"
+                end
                 #puts "moved to #{dest.name}"
                 look
             end
@@ -640,7 +657,14 @@ class App
             if surfs.empty?
                 puts "#{thing.name} can't be climbed"
             else
-                player.move_to_surface surfs.first.id
+                surf = surfs.first
+                player.move_to_surface surf.id
+                if surf.simple?
+                    player.clear_location
+                else
+                    # to be revisited
+                    player.set_location Vector[0.0,0.0]
+                end
                 #puts "climbing onto #{thing.name}"
                 look
             end
@@ -659,6 +683,11 @@ class App
             else
                 surroundings = thing.on_surface
                 player.move_to_surface surroundings.id
+                if surroundings.has_geometry?
+                    player.set_location thing.location
+                else
+                    player.clear_location
+                end
                 #puts "moved from #{thing.name} to #{surroundings.name}"
                 look
             end
@@ -687,6 +716,49 @@ class App
         entries.each do |entry|
             puts "#{entry[:label].ljust(width)} - #{entry[:form]} to #{entry[:to_name]}"
         end
+    end
+
+    def range thing_id
+        player = self.get_avatar
+        surface = player.on_surface
+        thing = select_thing thing_id, player
+        if thing_id == player.id
+            puts "You Are Here"
+        elsif thing.nil?
+            puts "not in this area"
+        elsif surface.simple?
+            puts "range to #{thing.name}: it's right here"
+        else
+            compute_range(surface, player, thing) => meters: meters, value: value, units: units
+            if meters <= 5
+                puts "range to #{thing.name}: it's right here"
+            else
+                puts "range to #{thing.name}: #{value}#{units}"
+            end
+        end
+    end
+
+    def compute_range surface, player, thing
+        geo = surface.geometry
+        p1 = player.location
+        p2 = thing.location
+        meters = geo.distance(p1,p2)
+        if meters < 1300
+            {:meters => meters, :value => meters.round, :units => 'm'}
+        elsif meters < 13000
+            {:meters => meters, :value => (meters/1000).round(1), :units => 'km'}
+        else
+            {:meters => meters, :value => (meters/1000).round, :units => 'km'}
+        end
+    end
+
+    def select_thing thing_id, player
+        return nil if not @world.objects.exists?(thing_id)
+        return nil if thing_id == player.id
+        thing = Thing.new(@world, thing_id)
+        surface = player.on_surface
+        #return thing if surface.host_object_id == thing_id
+        return thing if thing.on_surface_id == surface.id
     end
 
     def prompt

@@ -64,8 +64,16 @@ class Surface < Entity
     end
 
     def geometry
-        g = @world.tube_geometries.find_by(:surface_id, @id).first
+        g = @world.tube_geometries.find_first_by(:surface_id, @id)
         g && TubeGeometry.new(g.circumference, g.length)
+    end
+
+    def has_geometry?
+        not simple?
+    end
+
+    def simple?
+        geometry.nil?
     end
 
 end
