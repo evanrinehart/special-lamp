@@ -6,6 +6,7 @@ addclass edges
 addclass size_hints
 addclass todos
 addclass players
+addclass tube_geometries
 addprop mobs object_id nil
 addprop mobs health_id nil
 addprop mobs oxygen_id nil
@@ -33,6 +34,9 @@ addprop size_hints note ""
 addprop todos note ""
 addprop todos check ""
 addprop players mob_id nil
+addprop tube_geometries surface_id nil
+addprop tube_geometries circumference 4.0
+addprop tube_geometries length 4.0
 spawnid mobs 5
 spawnid powerbars 9
 spawnid powerbars 10
@@ -77,7 +81,9 @@ spawnid todos 34
 spawnid todos 35
 spawnid todos 38
 spawnid todos 46
+spawnid todos 53
 spawnid players 50
+spawnid tube_geometries 54
 set mobs 5 object_id 14
 set mobs 5 health_id 9
 set mobs 5 oxygen_id 10
@@ -89,7 +95,7 @@ set objects 13 name "ration"
 set objects 14 name "Player"
 set objects 15 name "Ship 15"
 set objects 13 on_surface_id 16
-set objects 14 on_surface_id 19
+set objects 14 on_surface_id 49
 set objects 15 on_surface_id 49
 set objects 11 container_id 14
 set objects 12 container_id 14
@@ -181,6 +187,7 @@ set todos 34 note "add command to check off todo"
 set todos 35 note "make the current avatar not hard coded"
 set todos 38 note "add way to create database from text dump"
 set todos 46 note "add real movement commands"
+set todos 53 note "detailed movement outside"
 set todos 30 check "CHECK"
 set todos 31 check "CHECK"
 set todos 32 check "CHECK"
@@ -189,3 +196,6 @@ set todos 34 check "CHECK"
 set todos 35 check "CHECK"
 set todos 46 check "CHECK"
 set players 50 mob_id 5
+set tube_geometries 54 surface_id 49
+set tube_geometries 54 circumference 1600.0
+set tube_geometries 54 length 3200.0
