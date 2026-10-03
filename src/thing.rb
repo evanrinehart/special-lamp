@@ -36,7 +36,7 @@ class Thing < Entity
     end
 
     def outer_surfaces
-        surfaces.filter{|x| x.outer}
+        surfaces.filter{|x| x.outer?}
     end
 
     def size

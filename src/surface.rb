@@ -1,4 +1,5 @@
 require 'entity'
+require 'geometry'
 
 class Surface < Entity
     def initialize(world, surface_id, table=nil)
@@ -60,6 +61,11 @@ class Surface < Entity
             @edges.delete id
         end
         n
+    end
+
+    def geometry
+        g = @world.tube_geometries.find_by(:surface_id, @id).first
+        g && TubeGeometry.new(g.circumference, g.length)
     end
 
 end
