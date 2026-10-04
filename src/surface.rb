@@ -12,7 +12,7 @@ class Surface < Entity
     end
 
     def things
-        @objects.find_by(:on_surface_id, @id)
+        @objects.find_by(:on_surface_id, @id).map {|o| Thing.new(@world, o.id) }
     end
 
     def size
@@ -82,6 +82,20 @@ class Surface < Entity
 
     def simple?
         geometry.nil?
+    end
+
+    def measure_separation thing1, thing2
+        geo = self.geometry
+        p1 = thing1.location
+        p2 = thing2.location
+        meters = geo.distance(p1,p2)
+        if meters < 1300
+            {:meters => meters, :value => meters.round, :units => 'm'}
+        elsif meters < 13000
+            {:meters => meters, :value => (meters/1000).round(1), :units => 'km'}
+        else
+            {:meters => meters, :value => (meters/1000).round, :units => 'km'}
+        end
     end
 
 end

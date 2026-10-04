@@ -75,8 +75,8 @@ class Thing < Entity
     end
 
     def mob
-        mob_id = @mobs.find_first_by(:object_id, @id)
-        mob_id && Mob.new(@world, mob_id)
+        mob = @mobs.find_first_by(:object_id, @id)
+        mob && Mob.new(@world, mob.id)
     end
 
     def contents

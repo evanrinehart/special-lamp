@@ -12,6 +12,7 @@ addprop mobs health_id nil
 addprop mobs oxygen_id nil
 addprop mobs food_id nil
 addprop mobs speed 0.5
+addprop mobs driving_id nil
 addprop powerbars value 0
 addprop powerbars value_max 100
 addprop powerbars regen nil
@@ -38,6 +39,7 @@ addprop size_hints note ""
 addprop todos note ""
 addprop todos check ""
 addprop players mob_id nil
+addprop players clock 0
 addprop tube_geometries surface_id nil
 addprop tube_geometries circumference 4.0
 addprop tube_geometries length 4.0
@@ -47,6 +49,8 @@ spawnid mobs 62
 spawnid powerbars 9
 spawnid powerbars 10
 spawnid powerbars 60
+spawnid powerbars 66
+spawnid powerbars 67
 spawnid objects 11
 spawnid objects 12
 spawnid objects 13
@@ -94,19 +98,25 @@ spawnid todos 56
 spawnid todos 57
 spawnid todos 58
 spawnid todos 59
+spawnid todos 63
+spawnid todos 65
 spawnid players 50
 spawnid tube_geometries 54
 set mobs 5 object_id 14
 set mobs 61 object_id 15
 set mobs 62 object_id 55
 set mobs 5 health_id 9
+set mobs 61 health_id 66
+set mobs 62 health_id 67
 set mobs 5 oxygen_id 10
 set mobs 5 food_id 60
 set mobs 61 speed 110.0
-set mobs 62 speed 30.0
+set mobs 62 speed 10.0
 set powerbars 9 value 100
 set powerbars 10 value 100
 set powerbars 60 value 100
+set powerbars 66 value 30
+set powerbars 67 value 50
 set objects 11 name "fuse"
 set objects 12 name "spanner"
 set objects 13 name "ration"
@@ -116,7 +126,7 @@ set objects 55 name "Truck"
 set objects 13 on_surface_id 16
 set objects 14 on_surface_id 17
 set objects 15 on_surface_id 49
-set objects 55 on_surface_id 49
+set objects 55 on_surface_id 17
 set objects 11 container_id 14
 set objects 12 container_id 14
 set objects 11 size 6
@@ -125,9 +135,7 @@ set objects 13 size 7
 set objects 14 size 9
 set objects 15 size 12
 set objects 15 x 1000.0
-set objects 55 x 1100.0
 set objects 15 y 0.0
-set objects 55 y 50.0
 set surfaces 16 name "Cryochamber"
 set surfaces 17 name "Loading Bay"
 set surfaces 18 name "Supply Closet"
@@ -218,6 +226,8 @@ set todos 56 note "l should list things visible on ship surface"
 set todos 57 note "it's dark. l should show distant lights"
 set todos 58 note "l should show distances outside"
 set todos 59 note "add a clock"
+set todos 63 note "being able to reference objects by name"
+set todos 65 note "ability to drive vehicles"
 set todos 30 check "CHECK"
 set todos 31 check "CHECK"
 set todos 32 check "CHECK"
@@ -226,7 +236,10 @@ set todos 34 check "CHECK"
 set todos 35 check "CHECK"
 set todos 46 check "CHECK"
 set todos 53 check "CHECK"
+set todos 58 check "CHECK"
+set todos 59 check "CHECK"
 set players 50 mob_id 5
+set players 50 clock 671
 set tube_geometries 54 surface_id 49
 set tube_geometries 54 circumference 1600.0
 set tube_geometries 54 length 3200.0

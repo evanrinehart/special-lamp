@@ -27,6 +27,12 @@ class Player < Entity
         @players.set(:clock, @id, n + dn)
     end
 
+    def advance_to_next_minute
+        n = self.clock
+        s = n % 60
+        add_time (60 - s)
+    end
+
     def day
         self.clock / 86400
     end

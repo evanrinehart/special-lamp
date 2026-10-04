@@ -21,6 +21,7 @@ class CommandFilter
         in "ll" then app.look_around
         in "i" then app.inventory
         in "time" then app.print_time
+        in "date" then app.print_date
 
         in "n" then app.go :n
         in "e" then app.go :e
@@ -38,6 +39,8 @@ class CommandFilter
 
         in "range" then range args
         in "goto" then goto args
+
+        in "drive" then drive args
 
         in "r" then app.reload
         in "save" then app.save
@@ -246,6 +249,14 @@ class CommandFilter
         end
     end
 
+    def drive args
+        if args.empty?
+            app.drive
+        else
+            app.drive_vehicle args[0].to_i
+        end
+    end
+
 end
 
 class App
@@ -254,7 +265,6 @@ class App
         @filename = filename
         @world = world
         @player = Player.new(world, world.players.first.id)
-        @player_id = world.players.first.mob_id
         @reloadables = [
             'entity.rb',
             'surface.rb',
@@ -296,20 +306,21 @@ class App
     end
 
     def look
-        player = Mob.new(@world, @player_id).thing
+        player = self.get_puppet.thing
         surf = player.on_surface
         look_room surf, player
     end
 
     def look_around
-        player = Mob.new(@world, @player_id).thing
+        player = self.get_puppet.thing
         surf = player.on_surface
         if surf.outer?
-            env = surf.host_object.on_surface
+            obj = surf.host_object
+            env = obj.on_surface
             if env.nil?
                 puts mist
             else
-                look_room env, player, :show_exits => false
+                look_room env, obj, :show_exits => false
             end
         else
             look_room surf, player
@@ -317,7 +328,7 @@ class App
     end
 
     def look_dir direction
-        player = self.get_avatar
+        player = self.get_puppet.thing
         surf = player.on_surface
         edges = surf.edges.sort_by{|e| e.index}
         way = nil
@@ -359,15 +370,20 @@ class App
             end
             surface.things.each do |thing|
                 next if thing.id == player.id
-                puts "  #{thing.name}"
+                if surface.far? player, thing
+                    dist = surface.measure_separation(player, thing)
+                    puts "  #{thing.name} (#{dist[:value]}#{dist[:units]} away)"
+                else
+                    puts "  #{thing.name}"
+                end
             end
             list_exits if show_exits
         end
     end
 
     def inventory
-        player = Mob.new(@world, @player_id)
-        things = player.things
+        player = self.get_puppet.thing
+        things = player.contents
         if things.empty?
             puts "You're empty handed!"
         else
@@ -378,7 +394,7 @@ class App
     end
 
     def drop item_id
-        player = Mob.new(@world, @player_id).thing
+        player = self.get_puppet.thing
         thing = player.get_contents_by_id item_id
         surf = player.on_surface
         if thing.nil?
@@ -392,11 +408,16 @@ class App
     end
 
     def take item_id
-        player = Mob.new(@world, @player_id).thing
+        puppet = self.get_puppet
+        player = puppet.thing
         surface = player.on_surface
         thing = surface.thing_by_id item_id
-        if thing.nil?
+        if puppet.has_pilot?
+            puts "#{player.name} can't just take stuff"
+        elsif thing.nil?
             puts "no such thing"
+        elsif thing.is_mob?
+            puts "we don't put #{thing.name} in an inventory"
         else
             size_diff = thing.size - player.size
             if size_diff >= 3
@@ -404,7 +425,7 @@ class App
             elsif size_diff >= 1
                 puts "#{thing.name} is way too big."
             elsif size_diff >= 0
-                puts "Roll a strength check. Failed"
+                puts "Not enough strength for that."
             else
                 thing.move_to_container player.id
                 puts "#{thing.name} taken"
@@ -522,17 +543,11 @@ class App
         @reloadables.push filename
     end
 
-    def empty_command
-        hud_report
-    end
-
     def wait(n)
         if n < 1
-            puts "how long?"
-            return
-        end
-
-        if n < 25
+            @player.add_time 60
+            puts "you wait a minute"
+        elsif n < 25
             print_dots n
             @player.add_time (n * 60)
             puts "ready"
@@ -589,7 +604,7 @@ class App
     end
 
     def unlink dest_id
-        player = self.get_avatar
+        player = self.get_puppet.thing
         src = Surface.new @world, player.on_surface.id
         dst = Surface.new @world, dest_id
         if src.nil?
@@ -603,11 +618,17 @@ class App
     end
 
     def get_avatar
-        Mob.new(@world, @player_id).thing
+        @player.mob
+    end
+
+    def get_puppet
+        avatar = self.get_avatar
+        vehicle = avatar.vehicle
+        vehicle || avatar
     end
 
     def hud_report
-        player = Mob.new(@world, @player_id)
+        player = self.get_avatar
         health = player.health
         oxygen = player.oxygen
         food = player.food
@@ -617,7 +638,7 @@ class App
     end
 
     def go direction
-        player = self.get_avatar
+        player = self.get_puppet.thing
         surf = player.on_surface
         edges = surf.edges.sort_by{|e| e.index}
         way = nil
@@ -646,9 +667,9 @@ class App
             else
                 point2 = geo.motion point1, vel, 60.0
                 player.set_location point2
+                puts "moving along surface for 1 minute"
                 print_dots 6
                 @player.add_time 60
-                puts "moving along surface for 1 minute"
                 look
             end
         else
@@ -672,7 +693,7 @@ class App
     end
 
     def climb thing_id
-        player = self.get_avatar
+        player = self.get_puppet.thing
         surface = player.on_surface
         thing = surface.thing_by_id thing_id
         if thing.nil?
@@ -703,7 +724,7 @@ class App
     end
 
     def fall
-        player = self.get_avatar
+        player = self.get_puppet.thing
         here = player.on_surface
         if here.nil? || !here.outer?
             puts "you can't fall from here"
@@ -734,7 +755,7 @@ class App
     end
 
     def list_exits
-        player = self.get_avatar
+        player = self.get_puppet.thing
         surf = player.on_surface
         entries = []
         surf.edges.each do |edge|
@@ -750,7 +771,7 @@ class App
     end
 
     def range thing_id
-        player = self.get_avatar
+        player = self.get_puppet.thing
         surface = player.on_surface
         thing = select_thing thing_id, player
         if thing_id == player.id
@@ -770,21 +791,11 @@ class App
     end
 
     def compute_range surface, player, thing
-        geo = surface.geometry
-        p1 = player.location
-        p2 = thing.location
-        meters = geo.distance(p1,p2)
-        if meters < 1300
-            {:meters => meters, :value => meters.round, :units => 'm'}
-        elsif meters < 13000
-            {:meters => meters, :value => (meters/1000).round(1), :units => 'km'}
-        else
-            {:meters => meters, :value => (meters/1000).round, :units => 'km'}
-        end
+        surface.measure_separation player, thing
     end
 
     def goto thing_id
-        player = self.get_avatar
+        player = self.get_puppet.thing
         surface = player.on_surface
         thing = select_thing thing_id, player
         if thing_id == player.id
@@ -804,7 +815,7 @@ class App
                 puts "takes #{format_time(meters / speed)}"
                 player.set_location thing.location
                 seconds = (meters / speed).round
-                @player.add_time (60 * (seconds.round / 60))
+                @player.add_time seconds
             end
         end
     end
@@ -828,12 +839,19 @@ class App
         end
     end
 
+    def drive
+    end
+
+    def drive_vehicle thing_id
+    end
+
     def print_time
         puts "#{@player.show_time}"
     end
 
-    def prompt
-        "> "
+    def print_date
+        d = @player.day
+        puts "#{d + 1}"
     end
 
     def print_dots n
@@ -846,6 +864,14 @@ class App
 
     def mist
         "A featureless cyan mist"
+    end
+
+    def prompt
+        "> "
+    end
+
+    def empty_command
+        hud_report
     end
 
 end

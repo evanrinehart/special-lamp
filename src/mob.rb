@@ -17,6 +17,19 @@ class Mob < Entity
         @thing
     end
 
+    def driving_id
+        @mobs.get(:driving_id, @id)
+    end
+
+    def vehicle
+        vid = self.driving_id
+        vid && Mob.new(@world, vid)
+    end
+
+    def has_pilot?
+        @mobs.find_first_by(:driving_id, @id) != nil
+    end
+
     def name
         @thing.name
     end
