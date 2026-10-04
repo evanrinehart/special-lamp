@@ -37,11 +37,16 @@ class Edge < Entity
     end
 
     def to_edge
-        Edge.new(@world, to_edge_id)
+        eid = self.to_edge_id
+        eid && Edge.new(@world, to_edge_id)
     end
 
     def to_surface
-        to_edge.surface
+        if self.to_edge_id
+            to_edge.surface
+        else
+            nil
+        end
     end
 
     def goes_to_surface? surface_id

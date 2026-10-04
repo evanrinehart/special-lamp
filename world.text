@@ -25,17 +25,20 @@ addprop objects container_id nil
 addprop objects size 10
 addprop objects x nil
 addprop objects y nil
+addprop objects entry_id nil
 addprop surfaces name "(somewhere)"
 addprop surfaces object_id nil
-addprop surfaces inverse true
 addprop surfaces size 10
 addprop surfaces outer false
+addprop surfaces glass false
+addprop surfaces inverse true
 addprop edges surface_id nil
 addprop edges index 0
 addprop edges to_edge_id nil
 addprop edges form "passage"
 addprop edges shortcut nil
 addprop edges blocked false
+addprop edges door_id nil
 addprop size_hints size 10
 addprop size_hints note ""
 addprop todos note ""
@@ -78,6 +81,7 @@ spawnid edges 47
 spawnid edges 48
 spawnid edges 51
 spawnid edges 52
+spawnid edges 76
 spawnid size_hints 25
 spawnid size_hints 26
 spawnid size_hints 27
@@ -135,7 +139,7 @@ set objects 14 name "Player"
 set objects 15 name "Ship 15"
 set objects 55 name "Truck"
 set objects 13 on_surface_id 16
-set objects 14 on_surface_id 49
+set objects 14 on_surface_id 17
 set objects 15 on_surface_id 49
 set objects 55 on_surface_id 17
 set objects 11 container_id 14
@@ -145,10 +149,9 @@ set objects 12 size 7
 set objects 13 size 7
 set objects 14 size 9
 set objects 15 size 12
-set objects 14 x 1000.0
 set objects 15 x 1000.0
-set objects 14 y 0.0
 set objects 15 y 0.0
+set objects 55 entry_id 71
 set surfaces 16 name "Cryochamber"
 set surfaces 17 name "Loading Bay"
 set surfaces 18 name "Supply Closet"
@@ -164,7 +167,6 @@ set surfaces 19 object_id 15
 set surfaces 20 object_id 15
 set surfaces 71 object_id 55
 set surfaces 72 object_id 55
-set surfaces 20 inverse false
 set surfaces 17 size 11
 set surfaces 18 size 9
 set surfaces 20 size 12
@@ -172,6 +174,8 @@ set surfaces 49 size 14
 set surfaces 71 size 9
 set surfaces 20 outer true
 set surfaces 72 outer true
+set surfaces 71 glass true
+set surfaces 20 inverse false
 set edges 21 surface_id 16
 set edges 22 surface_id 17
 set edges 23 surface_id 17
@@ -182,6 +186,7 @@ set edges 47 surface_id 16
 set edges 48 surface_id 18
 set edges 51 surface_id 19
 set edges 52 surface_id 20
+set edges 76 surface_id 71
 set edges 23 index 1
 set edges 36 index 2
 set edges 47 index 1
@@ -199,6 +204,7 @@ set edges 51 to_edge_id 52
 set edges 52 to_edge_id 51
 set edges 51 form "window"
 set edges 52 form "window"
+set edges 76 form "hatch"
 set edges 21 shortcut :n
 set edges 22 shortcut :s
 set edges 23 shortcut :w
@@ -207,6 +213,7 @@ set edges 36 shortcut :n
 set edges 37 shortcut :s
 set edges 51 shortcut :n
 set edges 52 shortcut :s
+set edges 76 shortcut :w
 set edges 51 blocked true
 set edges 52 blocked true
 set size_hints 25 size 6

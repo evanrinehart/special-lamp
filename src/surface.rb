@@ -23,6 +23,10 @@ class Surface < Entity
         @surfaces.get(:outer, @id)
     end
 
+    def glass?
+        @surfaces.get(:glass, @id)
+    end
+
     def far? thing1, thing2
         if simple?
             false
@@ -74,6 +78,11 @@ class Surface < Entity
     def geometry
         g = @world.tube_geometries.find_first_by(:surface_id, @id)
         g && TubeGeometry.new(g.circumference, g.length)
+    end
+
+    def surroundings_surface
+        host = self.host_object
+        host && host.on_surface
     end
 
     def has_geometry?

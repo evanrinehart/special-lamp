@@ -323,13 +323,14 @@ class App
     def look_around
         player = self.get_puppet.thing
         surf = player.on_surface
-        if surf.outer?
+        glass = surf.glass?
+        if surf.outer? || glass
             obj = surf.host_object
             env = obj.on_surface
             if env.nil?
                 puts mist
             else
-                look_room env, obj, :show_exits => false
+                look_room env, obj, :show_exits => glass
             end
         else
             look_room surf, player
@@ -386,7 +387,7 @@ class App
                     puts "  #{thing.name}"
                 end
             end
-            list_exits if show_exits
+            list_exits(surface) if show_exits
         end
     end
 
@@ -660,6 +661,7 @@ class App
     def go direction
         player = self.get_puppet.thing
         surf = player.on_surface
+        here = surf
         edges = surf.edges.sort_by{|e| e.index}
         way = nil
         edges.each do |e|
@@ -693,8 +695,11 @@ class App
                 look
             end
         else
-            dest = way.to_surface
-            if player.size > dest.size
+            dest = way.to_surface || here.surroundings_surface
+
+            if dest.nil?
+                puts "no way"
+            elsif player.size > dest.size
                 puts "As it stands you'd never fit."
             elsif way.blocked?
                 puts "That way is blocked."
@@ -774,15 +779,14 @@ class App
         puts "backtracking..."
     end
 
-    def list_exits
-        player = self.get_puppet.thing
-        surf = player.on_surface
+    def list_exits surface
         entries = []
-        surf.edges.each do |edge|
+        surface.edges.each do |edge|
             dest = edge.to_surface
             sc = edge.shortcut
             label = sc ? sc.to_s : "go #{edge.index}"
-            entries.push({:label => label, :form => edge.form, :to_name => dest.name})
+            to_name = dest ? dest.name : "outside"
+            entries.push({:label => label, :form => edge.form, :to_name => to_name})
         end
         width = entries.map{|x| x[:label].length}.max
         entries.each do |entry|
