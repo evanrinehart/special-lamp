@@ -183,6 +183,15 @@ class ClassData
         end
     end
 
+    def reorder prop
+        if @columns.keys.include? prop
+            col = @columns.delete prop
+            @columns[prop] = col
+        else
+            raise "no such property"
+        end
+    end
+
 end
 
 
@@ -360,6 +369,15 @@ class SomeWorld
         n = @id_gen
         @id_gen += 1
         n
+    end
+
+    def reorder klass, prop
+        table = @tables[klass]
+        if table.nil?
+            raise "no such class"
+        else
+            table.reorder prop
+        end
     end
 
 end

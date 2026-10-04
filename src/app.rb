@@ -61,6 +61,7 @@ class CommandFilter
         in "spawn" then spawn args
         in "spawnid" then spawnid args
         in "delete" then unspawn args
+        in "reorder" then reorder args
         in "todo" then app.append_todo args[0]
         in "todone" then app.checkoff_todo args[0].to_i
         in "link" then link args
@@ -257,6 +258,14 @@ class CommandFilter
         end
     end
 
+    def reorder args
+        if args.count < 2
+            puts "hint: reorder <class> <prop> - move prop to the end"
+        else
+            app.reorder args[0].to_sym, args[1].to_sym
+        end
+    end
+
 end
 
 class App
@@ -412,7 +421,7 @@ class App
         player = puppet.thing
         surface = player.on_surface
         thing = surface.thing_by_id item_id
-        if puppet.has_pilot?
+        if puppet.has_pilot? # is vehicle
             puts "#{player.name} can't just take stuff"
         elsif thing.nil?
             puts "no such thing"
@@ -532,6 +541,17 @@ class App
         else
             table.delete id
             puts "#{klass} id=#{id} deleted"
+        end
+    end
+
+    def reorder klass, prop
+        if @world[klass].nil?
+            puts "no such class"
+        elsif @world[klass].has_prop?(prop) == false
+            puts "no such prop"
+        else
+            @world.reorder klass, prop
+            puts "moved #{prop} to the end"
         end
     end
 

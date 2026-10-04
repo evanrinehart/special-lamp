@@ -11,6 +11,8 @@ addprop mobs object_id nil
 addprop mobs health_id nil
 addprop mobs oxygen_id nil
 addprop mobs food_id nil
+addprop mobs energy_id nil
+addprop mobs fuel_id nil
 addprop mobs speed 0.5
 addprop mobs driving_id nil
 addprop powerbars value 0
@@ -51,6 +53,7 @@ spawnid powerbars 10
 spawnid powerbars 60
 spawnid powerbars 66
 spawnid powerbars 67
+spawnid powerbars 75
 spawnid objects 11
 spawnid objects 12
 spawnid objects 13
@@ -63,6 +66,8 @@ spawnid surfaces 18
 spawnid surfaces 19
 spawnid surfaces 20
 spawnid surfaces 49
+spawnid surfaces 71
+spawnid surfaces 72
 spawnid edges 21
 spawnid edges 22
 spawnid edges 23
@@ -100,6 +105,11 @@ spawnid todos 58
 spawnid todos 59
 spawnid todos 63
 spawnid todos 65
+spawnid todos 68
+spawnid todos 69
+spawnid todos 70
+spawnid todos 73
+spawnid todos 74
 spawnid players 50
 spawnid tube_geometries 54
 set mobs 5 object_id 14
@@ -110,6 +120,7 @@ set mobs 61 health_id 66
 set mobs 62 health_id 67
 set mobs 5 oxygen_id 10
 set mobs 5 food_id 60
+set mobs 62 energy_id 75
 set mobs 61 speed 110.0
 set mobs 62 speed 10.0
 set powerbars 9 value 100
@@ -124,7 +135,7 @@ set objects 14 name "Player"
 set objects 15 name "Ship 15"
 set objects 55 name "Truck"
 set objects 13 on_surface_id 16
-set objects 14 on_surface_id 17
+set objects 14 on_surface_id 49
 set objects 15 on_surface_id 49
 set objects 55 on_surface_id 17
 set objects 11 container_id 14
@@ -134,7 +145,9 @@ set objects 12 size 7
 set objects 13 size 7
 set objects 14 size 9
 set objects 15 size 12
+set objects 14 x 1000.0
 set objects 15 x 1000.0
+set objects 14 y 0.0
 set objects 15 y 0.0
 set surfaces 16 name "Cryochamber"
 set surfaces 17 name "Loading Bay"
@@ -142,17 +155,23 @@ set surfaces 18 name "Supply Closet"
 set surfaces 19 name "Navigation"
 set surfaces 20 name "Outside Ship 15"
 set surfaces 49 name "Some Lavatube Somewhere"
+set surfaces 71 name "Truck Cab"
+set surfaces 72 name "Truck Bed"
 set surfaces 16 object_id 15
 set surfaces 17 object_id 15
 set surfaces 18 object_id 15
 set surfaces 19 object_id 15
 set surfaces 20 object_id 15
+set surfaces 71 object_id 55
+set surfaces 72 object_id 55
 set surfaces 20 inverse false
 set surfaces 17 size 11
 set surfaces 18 size 9
 set surfaces 20 size 12
 set surfaces 49 size 14
+set surfaces 71 size 9
 set surfaces 20 outer true
+set surfaces 72 outer true
 set edges 21 surface_id 16
 set edges 22 surface_id 17
 set edges 23 surface_id 17
@@ -228,6 +247,11 @@ set todos 58 note "l should show distances outside"
 set todos 59 note "add a clock"
 set todos 63 note "being able to reference objects by name"
 set todos 65 note "ability to drive vehicles"
+set todos 68 note "command to take control of vehicles"
+set todos 69 note "vehicle health appended to HUD"
+set todos 70 note "truck needs an interior surface (controls)"
+set todos 73 note "need to enter and exit simple vehicles"
+set todos 74 note "equipment, such as space suit"
 set todos 30 check "CHECK"
 set todos 31 check "CHECK"
 set todos 32 check "CHECK"
@@ -238,8 +262,10 @@ set todos 46 check "CHECK"
 set todos 53 check "CHECK"
 set todos 58 check "CHECK"
 set todos 59 check "CHECK"
+set todos 65 check "CHECK"
+set todos 70 check "CHECK"
 set players 50 mob_id 5
-set players 50 clock 671
+set players 50 clock 791
 set tube_geometries 54 surface_id 49
 set tube_geometries 54 circumference 1600.0
 set tube_geometries 54 length 3200.0
