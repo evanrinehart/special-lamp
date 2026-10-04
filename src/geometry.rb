@@ -34,6 +34,16 @@ class PlaneGeometry
         nil
     end
 
+    def tangent_from_compass point, direction
+        case direction
+        in :n then Vector[0.0, 1.0]
+        in :s then Vector[0.0, -1.0]
+        in :e then Vector[1.0, 0.0]
+        in :w then Vector[-1.0, 0.0]
+        else raise 'invalid direction'
+        end
+    end
+
 end
 
 class TileGeometry < PlaneGeometry
@@ -177,6 +187,16 @@ class TubeGeometry
         [d1,d2,d3].min_by{|x| x.abs}
     end
 
+    def tangent_from_compass point, direction
+        case direction
+        in :n then Vector[0.0, 1.0]
+        in :s then Vector[0.0, -1.0]
+        in :e then Vector[1.0, 0.0]
+        in :w then Vector[-1.0, 0.0]
+        else raise 'invalid direction'
+        end
+    end
+
 end
 
 class SphereGeometry
@@ -273,6 +293,17 @@ class SphereGeometry
         v * c +
             axis.cross(v) * s +
                 axis * (axis.dot(v) * (1 - c))
+    end
+
+    def tangent_from_compass point, direction
+        lon_angle = point[0]
+        case direction
+        in :e then Vector[0.0, 1.0, 0.0]
+        in :w then Vector[0.0, -1.0, 0.0]
+        in :n then rotate_vector(Vector[0.0,1.0,0.0], lon_angle, Vector[-1.0, 0.0, 0.0])
+        in :s then rotate_vector(Vector[0.0,1.0,0.0], lon_angle, Vector[1.0, 0.0, 0.0])
+        else raise 'invalid direction'
+        end
     end
 
 end

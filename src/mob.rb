@@ -40,6 +40,15 @@ class Mob < Entity
         oxygen_id && @powerbars[oxygen_id]
     end
 
+    def food
+        food_id = @mobs.get(:food_id, @id)
+        food_id && @powerbars[food_id]
+    end
+
+    def speed
+        @mobs.get(:speed, @id)
+    end
+
     def move_to(surface_id)
         @thing.move_to_surface surface_id
     end

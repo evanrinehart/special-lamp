@@ -35,6 +35,7 @@ class CommandFilter
         in "fall" then app.fall
 
         in "range" then range args
+        in "goto" then goto args
 
         in "r" then app.reload
         in "save" then app.save
@@ -67,9 +68,10 @@ class CommandFilter
             puts "  i"
             puts "  exits"
             puts "  go <exit>"
+            puts "  goto <object>"
             puts "  climb <object>"
             puts "  fall"
-            puts "  . <n>"
+            puts "  wait <n>"
             puts "  take <object>"
             puts "  drop <object>"
         else puts "unknown command"
@@ -219,6 +221,14 @@ class CommandFilter
             puts "hint: range <object>"
         else
             app.range args[0].to_i
+        end
+    end
+
+    def goto args
+        if args.empty?
+            puts "hint: goto <object>"
+        else
+            app.goto args[0].to_i
         end
     end
 
@@ -601,8 +611,10 @@ class App
         player = Mob.new(@world, @player_id)
         health = player.health
         oxygen = player.oxygen
-        puts "HEALTH #{health.value.to_s.rjust(3)}" if health && health.value < health.value_max
-        puts "OXYGEN #{oxygen.value.to_s.rjust(3)}" if oxygen && oxygen.value < oxygen.value_max
+        food = player.food
+        puts "HEALTH #{health.value.to_s.rjust(3)}"
+        puts "OXYGEN #{oxygen.value.to_s.rjust(3)}"
+        puts "FOOD   #{food.value.to_s.rjust(3)}"
     end
 
     def go direction
@@ -620,8 +632,29 @@ class App
             end
         end
 
-        if way.nil?
+        geo = surf.geometry
+
+        if way.nil? && geo.nil?
             puts "way not found (see exits command)"
+        elsif way.nil?
+            point1 = player.location
+            tn = geo.tangent_from_compass point1, direction
+            speed = player.mob.speed
+            vel = geo.make_velocity tn, speed
+            ttb = geo.time_to_boundary point1, vel
+            if ttb && ttb < 60.0
+                puts "that way surface ends. better stay put for now"
+            else
+                point2 = geo.motion point1, vel, 60.0
+                player.set_location point2
+                6.times do
+                    print "."
+                    sleep 0.1
+                end
+                puts ""
+                puts "moving along surface for 1 minute"
+                look
+            end
         else
             dest = way.to_surface
             if player.size > dest.size
@@ -652,6 +685,8 @@ class App
             puts "ill-advised"
         elsif player.size > thing.size
             puts "ill-advised"
+        elsif surface.far? player, thing
+            puts "it's too far (goto #{thing_id}?)"
         else
             surfs = thing.outer_surfaces
             if surfs.empty?
@@ -675,7 +710,7 @@ class App
         player = self.get_avatar
         here = player.on_surface
         if here.nil? || !here.outer?
-            puts "fall command works best outside"
+            puts "you can't fall from here"
         else
             thing = player.on_surface.host_object
             if thing.nil? || thing.on_surface_id.nil?
@@ -752,6 +787,29 @@ class App
         end
     end
 
+    def goto thing_id
+        player = self.get_avatar
+        surface = player.on_surface
+        thing = select_thing thing_id, player
+        if thing_id == player.id
+            puts "You're Already Here"
+        elsif thing.nil?
+            puts "no strange thing"
+        elsif surface.simple?
+            puts "You're there!"
+        else
+            meters = compute_range(surface, player, thing)[:meters]
+            if meters <= 5
+                puts "You're there!"
+            else
+                speed = player.mob.speed
+                puts "move #{meters.round} meters toward #{thing.name}"
+                puts "takes #{format_time(meters / speed)}"
+                player.set_location thing.location
+            end
+        end
+    end
+
     def select_thing thing_id, player
         return nil if not @world.objects.exists?(thing_id)
         return nil if thing_id == player.id
@@ -759,6 +817,16 @@ class App
         surface = player.on_surface
         #return thing if surface.host_object_id == thing_id
         return thing if thing.on_surface_id == surface.id
+    end
+
+    def format_time seconds
+        if seconds < 60
+            "#{seconds.round} seconds"
+        elsif seconds < 3600
+            "#{seconds.round / 60} minutes"
+        else
+            "#{seconds.round / 3600} hours #{(seconds.round % 3600) / 60} minutes"
+        end
     end
 
     def prompt

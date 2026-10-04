@@ -10,6 +10,8 @@ addclass tube_geometries
 addprop mobs object_id nil
 addprop mobs health_id nil
 addprop mobs oxygen_id nil
+addprop mobs food_id nil
+addprop mobs speed 0.5
 addprop powerbars value 0
 addprop powerbars value_max 100
 addprop powerbars regen nil
@@ -40,8 +42,11 @@ addprop tube_geometries surface_id nil
 addprop tube_geometries circumference 4.0
 addprop tube_geometries length 4.0
 spawnid mobs 5
+spawnid mobs 61
+spawnid mobs 62
 spawnid powerbars 9
 spawnid powerbars 10
+spawnid powerbars 60
 spawnid objects 11
 spawnid objects 12
 spawnid objects 13
@@ -87,13 +92,21 @@ spawnid todos 46
 spawnid todos 53
 spawnid todos 56
 spawnid todos 57
+spawnid todos 58
+spawnid todos 59
 spawnid players 50
 spawnid tube_geometries 54
 set mobs 5 object_id 14
+set mobs 61 object_id 15
+set mobs 62 object_id 55
 set mobs 5 health_id 9
 set mobs 5 oxygen_id 10
+set mobs 5 food_id 60
+set mobs 61 speed 110.0
+set mobs 62 speed 30.0
 set powerbars 9 value 100
 set powerbars 10 value 100
+set powerbars 60 value 100
 set objects 11 name "fuse"
 set objects 12 name "spanner"
 set objects 13 name "ration"
@@ -101,7 +114,7 @@ set objects 14 name "Player"
 set objects 15 name "Ship 15"
 set objects 55 name "Truck"
 set objects 13 on_surface_id 16
-set objects 14 on_surface_id 16
+set objects 14 on_surface_id 17
 set objects 15 on_surface_id 49
 set objects 55 on_surface_id 49
 set objects 11 container_id 14
@@ -203,6 +216,8 @@ set todos 46 note "add real movement commands"
 set todos 53 note "detailed movement outside"
 set todos 56 note "l should list things visible on ship surface"
 set todos 57 note "it's dark. l should show distant lights"
+set todos 58 note "l should show distances outside"
+set todos 59 note "add a clock"
 set todos 30 check "CHECK"
 set todos 31 check "CHECK"
 set todos 32 check "CHECK"
@@ -210,6 +225,7 @@ set todos 33 check "CHECK"
 set todos 34 check "CHECK"
 set todos 35 check "CHECK"
 set todos 46 check "CHECK"
+set todos 53 check "CHECK"
 set players 50 mob_id 5
 set tube_geometries 54 surface_id 49
 set tube_geometries 54 circumference 1600.0

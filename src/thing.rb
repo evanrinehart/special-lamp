@@ -74,6 +74,11 @@ class Thing < Entity
         not @mobs.find_by(:object_id, @id).empty?
     end
 
+    def mob
+        mob_id = @mobs.find_first_by(:object_id, @id)
+        mob_id && Mob.new(@world, mob_id)
+    end
+
     def contents
         @things.find_by(:container_id, @id)
     end

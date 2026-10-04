@@ -23,6 +23,14 @@ class Surface < Entity
         @surfaces.get(:outer, @id)
     end
 
+    def far? thing1, thing2
+        if simple?
+            false
+        else
+            geometry.distance(thing1.location, thing2.location) > 5
+        end
+    end
+
     def host_object_id
         @surfaces.get(:object_id, @id)
     end
