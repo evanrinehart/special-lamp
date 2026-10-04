@@ -26,6 +26,14 @@ class Mob < Entity
         vid && Mob.new(@world, vid)
     end
 
+    def set_driving vehicle_id
+        @mobs.set(:driving_id, @id, vehicle_id)
+    end
+
+    def has_hands?
+        @mobs.get(:hands, @id)
+    end
+
     def has_pilot?
         @mobs.find_first_by(:driving_id, @id) != nil
     end
@@ -45,17 +53,22 @@ class Mob < Entity
 
     def health
         health_id = @mobs.get(:health_id, @id)
-        health_id && @powerbars[health_id]
+        health_id && Powerbar.new(@world, health_id)
     end
 
     def oxygen
         oxygen_id = @mobs.get(:oxygen_id, @id)
-        oxygen_id && @powerbars[oxygen_id]
+        oxygen_id && Powerbar.new(@world, oxygen_id)
     end
 
     def food
         food_id = @mobs.get(:food_id, @id)
-        food_id && @powerbars[food_id]
+        food_id && Powerbar.new(@world, food_id)
+    end
+
+    def energy
+        energy_id = @mobs.get(:energy_id, @id)
+        energy_id && Powerbar.new(@world, energy_id)
     end
 
     def speed

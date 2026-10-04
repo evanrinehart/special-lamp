@@ -5,6 +5,7 @@ require 'edge'
 require 'thing'
 require 'mob'
 require 'player'
+require 'powerbar'
 
 
 class CommandFilter
@@ -291,6 +292,7 @@ class App
             'mob.rb',
             'thing.rb',
             'player.rb',
+            'powerbar.rb',
             'geometry.rb',
             'app.rb'
         ]
@@ -395,9 +397,18 @@ class App
                     puts "  #{thing.name} (#{dist[:value]}#{dist[:units]} away)"
                 else
                     puts "  #{thing.name}"
+                    outers = thing.outer_surfaces
+                    outers.each do |surf|
+                        surf.things.each do |subthing|
+                            puts "    #{subthing.name} (#{surf.name})"
+                        end
+                    end
                 end
             end
             list_exits(surface) if show_exits
+            if surface.hot? || surface.cold?
+                puts "#{surface.format_temperature}"
+            end
         end
     end
 
@@ -432,7 +443,7 @@ class App
         player = puppet.thing
         surface = player.on_surface
         thing = surface.thing_by_id item_id
-        if puppet.has_pilot? # is vehicle
+        if puppet.has_hands? == false
             puts "#{player.name} can't just take stuff"
         elsif thing.nil?
             puts "no such thing"
@@ -658,16 +669,6 @@ class App
         vehicle || avatar
     end
 
-    def hud_report
-        player = self.get_avatar
-        health = player.health
-        oxygen = player.oxygen
-        food = player.food
-        puts "HEALTH #{health.value.to_s.rjust(3)}"
-        puts "OXYGEN #{oxygen.value.to_s.rjust(3)}"
-        puts "FOOD   #{food.value.to_s.rjust(3)}"
-    end
-
     def go direction
         player = self.get_puppet.thing
         surf = player.on_surface
@@ -714,13 +715,7 @@ class App
             elsif way.blocked?
                 puts "That way is blocked."
             else
-                player.move_to_surface dest.id
-                if dest.simple?
-                    player.clear_location
-                else
-                    # to be revisited
-                    puts "moved to a non-simple surface with go?"
-                end
+                transfer_object player, here, dest
                 #puts "moved to #{dest.name}"
                 look
             end
@@ -730,6 +725,7 @@ class App
     def climb thing_id
         player = self.get_puppet.thing
         surface = player.on_surface
+        here = surface
         thing = surface.thing_by_id thing_id
         if thing.nil?
             puts "no such thing"
@@ -750,6 +746,7 @@ class App
                     player.clear_location
                 else
                     # to be revisited
+                    puts "climb onto non-simple surface (needs work)"
                     player.set_location Vector[0.0,0.0]
                 end
                 #puts "climbing onto #{thing.name}"
@@ -769,15 +766,24 @@ class App
                 puts "nowhere to fall to"
             else
                 surroundings = thing.on_surface
-                player.move_to_surface surroundings.id
-                if surroundings.has_geometry?
-                    player.set_location thing.location
-                else
-                    player.clear_location
-                end
+                transfer_object player, here, surroundings
                 #puts "moved from #{thing.name} to #{surroundings.name}"
                 look
             end
+        end
+    end
+
+    def transfer_object thing, from_surface, to_surface
+        # good attempt to standardize movement but doesn't deal with geometric transfers.
+        # and doesn't deal with moving onto a "smaller" geometry from a larger one.
+        # only implements moving to simple, or exiting to surroundings.
+        if to_surface.simple?
+            thing.move_to_surface to_surface.id
+            thing.clear_location
+        else
+            host = from_surface.host_object
+            thing.move_to_surface to_surface.id
+            thing.set_location host.location
         end
     end
 
@@ -786,7 +792,13 @@ class App
     end
 
     def go_back
-        puts "backtracking..."
+        avatar = self.get_avatar
+        if avatar.driving_id
+            stop_driving
+            look
+        else
+            puts "backtracking..."
+        end
     end
 
     def list_exits surface
@@ -874,6 +886,30 @@ class App
     end
 
     def drive
+        puppet = self.get_puppet
+        player = puppet.thing
+        here = player.on_surface
+        if here.has_controls? == false
+            puts "no controls here"
+        elsif puppet.has_hands? == false
+            puts "#{player.name} can't drive something"
+        else
+            host = here.host_object
+            if host.nil?
+                puts "these controls go nowhere"
+            elsif host.is_mob? == false
+                puts "#{host.name} is not mobile"
+            else
+                puppet.set_driving host.mob.id
+                puts "You take control of #{host.name} (b to stop driving)"
+                look
+            end
+        end
+    end
+
+    def stop_driving
+        avatar = self.get_avatar
+        avatar.set_driving nil
     end
 
     def drive_vehicle thing_id
@@ -881,15 +917,20 @@ class App
 
     def enter thing_id
         player = self.get_puppet.thing
+        here = player.on_surface
         thing = select_thing thing_id, player
         if thing.nil?
             puts "no such thing"
+        elsif here.far? player, thing
+            puts "it's too far"
         else
             to_surf = thing.entry
             if to_surf.nil?
                 puts "I think not"
             else
+                # to be revisited, to_surf might have geometry (?)
                 player.move_to_surface to_surf.id
+                player.clear_location
                 look
             end
         end
@@ -906,7 +947,7 @@ class App
             if to_surf.nil?
                 puts "no way"
             else
-                player.move_to_surface to_surf.id
+                transfer_object player, here, to_surf
                 look
             end
         end
@@ -929,12 +970,29 @@ class App
         puts ""
     end
 
+    def hud_report
+        player = self.get_avatar
+        vehicle = player.vehicle
+        health = player.health
+        oxygen = player.oxygen
+        food = player.food
+        energy = player.energy
+        h2 = vehicle ? vehicle.health.percent.to_s : ""
+        e2 = vehicle ? vehicle.energy.percent.to_s : ""
+        puts "HEALTH #{health.percent.to_s.rjust(3)} \e[96m#{h2.rjust(3)}\e[0m"
+        puts "OXYGEN #{oxygen.percent.to_s.rjust(3)}"
+        puts "ENERGY #{energy&.percent.to_s.rjust(3)} \e[96m#{e2.rjust(3)}\e[0m"
+        puts "FOOD   #{food.percent.to_s.rjust(3)}"
+    end
+
     def mist
         "A featureless cyan mist"
     end
 
     def prompt
-        "> "
+        player = self.get_avatar
+        vehicle = player.vehicle
+        vehicle ? "#{vehicle.name}>" : "> "
     end
 
     def empty_command

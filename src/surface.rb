@@ -27,6 +27,10 @@ class Surface < Entity
         @surfaces.get(:glass, @id)
     end
 
+    def has_controls?
+        @surfaces.get(:controls, @id)
+    end
+
     def far? thing1, thing2
         if simple?
             false
@@ -121,6 +125,33 @@ class Surface < Entity
             {:meters => meters, :value => (meters/1000).round(1), :units => 'km'}
         else
             {:meters => meters, :value => (meters/1000).round, :units => 'km'}
+        end
+    end
+
+    def temperature
+        @surfaces.get(:temperature, @id)
+    end
+
+    def measure_temperature
+        self.temperature || self.host_object&.temperature || -270.0
+    end
+
+    def cold?
+        self.measure_temperature < 0.0
+    end
+
+    def hot?
+        self.measure_temperature > 50.0
+    end
+
+    def format_temperature
+        t = measure_temperature
+        if t < 0.0
+            "\e[96m#{t.round}°C\e[0m"
+        elsif t >= 50.0
+            "\e[91m#{t.round}°C\e[0m"
+        else
+            "#{t.round}°C"
         end
     end
 

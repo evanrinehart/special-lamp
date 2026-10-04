@@ -30,7 +30,6 @@ class Thing < Entity
         @things.set(:y, @id, nil)
     end
 
-
     def on_surface_id
         @things.get(:on_surface_id, @id)
     end
@@ -97,6 +96,10 @@ class Thing < Entity
     def entry
         surf_id = self.entry_id
         surf_id && Surface.new(@world, surf_id)
+    end
+
+    def temperature
+        self.on_surface&.measure_temperature
     end
 
 end
