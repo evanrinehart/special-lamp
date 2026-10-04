@@ -4,6 +4,7 @@ require 'surface'
 require 'edge'
 require 'thing'
 require 'mob'
+require 'player'
 
 
 class CommandFilter
@@ -19,6 +20,7 @@ class CommandFilter
         in "l" then look args
         in "ll" then app.look_around
         in "i" then app.inventory
+        in "time" then app.print_time
 
         in "n" then app.go :n
         in "e" then app.go :e
@@ -251,6 +253,7 @@ class App
     def initialize(world, filename="world.save")
         @filename = filename
         @world = world
+        @player = Player.new(world, world.players.first.id)
         @player_id = world.players.first.mob_id
         @reloadables = [
             'entity.rb',
@@ -258,6 +261,8 @@ class App
             'edge.rb',
             'mob.rb',
             'thing.rb',
+            'player.rb',
+            'geometry.rb',
             'app.rb'
         ]
     end
@@ -528,21 +533,15 @@ class App
         end
 
         if n < 25
-            n.times do
-                print '.'
-                sleep 0.1
-            end
-            puts ""
+            print_dots n
+            @player.add_time (n * 60)
             puts "ready"
-            hud_report
+            #hud_report
         else
-            25.times do
-                print '.'
-                sleep 0.1
-            end
-            puts ""
+            print_dots 25
+            @player.add_time (25 * 60)
             puts "you get tired of waiting"
-            hud_report
+            #hud_report
         end
     end
 
@@ -647,11 +646,8 @@ class App
             else
                 point2 = geo.motion point1, vel, 60.0
                 player.set_location point2
-                6.times do
-                    print "."
-                    sleep 0.1
-                end
-                puts ""
+                print_dots 6
+                @player.add_time 60
                 puts "moving along surface for 1 minute"
                 look
             end
@@ -804,8 +800,11 @@ class App
             else
                 speed = player.mob.speed
                 puts "move #{meters.round} meters toward #{thing.name}"
+                print_dots 6
                 puts "takes #{format_time(meters / speed)}"
                 player.set_location thing.location
+                seconds = (meters / speed).round
+                @player.add_time (60 * (seconds.round / 60))
             end
         end
     end
@@ -829,8 +828,20 @@ class App
         end
     end
 
+    def print_time
+        puts "#{@player.show_time}"
+    end
+
     def prompt
         "> "
+    end
+
+    def print_dots n
+        n.times do
+            print "."
+            sleep 0.1
+        end
+        puts ""
     end
 
     def mist
