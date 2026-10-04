@@ -60,6 +60,22 @@ class Surface < Entity
         @edges.find_by(:surface_id, @id).map{|x| Edge.new(@world, x.id)}
     end
 
+    def escape_hatches
+        edges.filter do |e|
+            e.to_edge_id.nil? || (e.goes_outside? && e.open?)
+        end
+    end
+
+    def single_exit
+        all_edges = self.edges
+        if all_edges.count == 1
+            e = all_edges.first
+            e.open? ? e : nil
+        else
+            nil
+        end
+    end
+
     def delete_edges_to surface_id
         delete_list = []
         edges.each do |edge|
@@ -76,6 +92,7 @@ class Surface < Entity
     end
 
     def geometry
+        # should instead pick the right geometry, not always Tube
         g = @world.tube_geometries.find_first_by(:surface_id, @id)
         g && TubeGeometry.new(g.circumference, g.length)
     end

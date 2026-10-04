@@ -32,10 +32,11 @@ class CommandFilter
         in "f" then app.go_forward
         in "b" then app.go_back
         in "go" then go args
-        in "exits" then app.list_exits
 
         in "climb" then climb args
         in "fall" then app.fall
+        in "enter" then enter args
+        in "leave" then app.leave
 
         in "range" then range args
         in "goto" then goto args
@@ -72,11 +73,12 @@ class CommandFilter
             puts "  l [direction]"
             puts "  ll"
             puts "  i"
-            puts "  exits"
             puts "  go <exit>"
             puts "  goto <object>"
             puts "  climb <object>"
             puts "  fall"
+            puts "  enter <object>"
+            puts "  leave"
             puts "  wait <n>"
             puts "  take <object>"
             puts "  drop <object>"
@@ -219,6 +221,14 @@ class CommandFilter
             puts "hint: climb <object>"
         else
             app.climb args[0].to_i
+        end
+    end
+
+    def enter args
+        if args.empty?
+            puts "hint: enter <object>"
+        else
+            app.enter args[0].to_i
         end
     end
 
@@ -677,7 +687,7 @@ class App
         geo = surf.geometry
 
         if way.nil? && geo.nil?
-            puts "way not found (see exits command)"
+            puts "way not found"
         elsif way.nil?
             point1 = player.location
             tn = geo.tangent_from_compass point1, direction
@@ -867,6 +877,39 @@ class App
     end
 
     def drive_vehicle thing_id
+    end
+
+    def enter thing_id
+        player = self.get_puppet.thing
+        thing = select_thing thing_id, player
+        if thing.nil?
+            puts "no such thing"
+        else
+            to_surf = thing.entry
+            if to_surf.nil?
+                puts "I think not"
+            else
+                player.move_to_surface to_surf.id
+                look
+            end
+        end
+    end
+
+    def leave
+        player = self.get_puppet.thing
+        here = player.on_surface
+        edge = here.single_exit || here.escape_hatches.first
+        if edge.nil?
+            puts "no immediate way outside"
+        else
+            to_surf = edge.to_surface || here.surroundings_surface
+            if to_surf.nil?
+                puts "no way"
+            else
+                player.move_to_surface to_surf.id
+                look
+            end
+        end
     end
 
     def print_time

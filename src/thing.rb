@@ -90,4 +90,13 @@ class Thing < Entity
         nil
     end
 
+    def entry_id
+        @things.get(:entry_id, @id)
+    end
+
+    def entry
+        surf_id = self.entry_id
+        surf_id && Surface.new(@world, surf_id)
+    end
+
 end

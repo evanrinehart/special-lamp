@@ -82,6 +82,7 @@ spawnid edges 48
 spawnid edges 51
 spawnid edges 52
 spawnid edges 76
+spawnid edges 77
 spawnid size_hints 25
 spawnid size_hints 26
 spawnid size_hints 27
@@ -151,6 +152,7 @@ set objects 14 size 9
 set objects 15 size 12
 set objects 15 x 1000.0
 set objects 15 y 0.0
+set objects 15 entry_id 17
 set objects 55 entry_id 71
 set surfaces 16 name "Cryochamber"
 set surfaces 17 name "Loading Bay"
@@ -187,6 +189,7 @@ set edges 48 surface_id 18
 set edges 51 surface_id 19
 set edges 52 surface_id 20
 set edges 76 surface_id 71
+set edges 77 surface_id 72
 set edges 23 index 1
 set edges 36 index 2
 set edges 47 index 1
@@ -205,6 +208,7 @@ set edges 52 to_edge_id 51
 set edges 51 form "window"
 set edges 52 form "window"
 set edges 76 form "hatch"
+set edges 77 form "gate"
 set edges 21 shortcut :n
 set edges 22 shortcut :s
 set edges 23 shortcut :w
@@ -214,6 +218,7 @@ set edges 37 shortcut :s
 set edges 51 shortcut :n
 set edges 52 shortcut :s
 set edges 76 shortcut :w
+set edges 77 shortcut :s
 set edges 51 blocked true
 set edges 52 blocked true
 set size_hints 25 size 6

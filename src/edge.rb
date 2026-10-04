@@ -24,6 +24,10 @@ class Edge < Entity
         @edges.get(:blocked, @id)
     end
 
+    def open?
+        not self.blocked?
+    end
+
     def index
         @edges.get(:index, @id)
     end
@@ -52,6 +56,10 @@ class Edge < Entity
     def goes_to_surface? surface_id
         other_surface = to_edge.surface
         other_surface && other_surface.id == surface_id
+    end
+
+    def goes_outside?
+        to_surface.outer?
     end
 
 end
