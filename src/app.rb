@@ -5,7 +5,6 @@ require 'edge'
 require 'thing'
 require 'mob'
 require 'player'
-require 'powerbar'
 
 
 class CommandFilter
@@ -266,6 +265,14 @@ class CommandFilter
             app.drive
         else
             app.drive_vehicle args[0].to_i
+        end
+    end
+
+    def walk args
+        if args.empty?
+            puts "hint: walk <minutes>"
+        else
+            app.walk args[0].to_i
         end
     end
 
@@ -587,20 +594,40 @@ class App
 
     def wait(n)
         if n < 1
-            @player.add_time 60
-            puts "you wait a minute"
+            amount = 1
+            message = "you wait a minute"
         elsif n < 25
-            print_dots n
-            @player.add_time (n * 60)
-            puts "ready"
-            #hud_report
+            amount = n
+            message = "ready"
         else
-            print_dots 25
-            @player.add_time (25 * 60)
-            puts "you get tired of waiting"
-            #hud_report
+            amount = 25
+            message = "you get tired of waiting"
         end
+
+        # we directed the game to n minutes.
+        # something might need to be done before that.
+        # and something might interrupt your waiting.
+        # we need to query the time of that next event. do it, then resume waiting (or not).
+
+        puts "needs work"
+
+        #seconds = amount * 60
+        #report = spend_up_to(seconds)
+        #print_dots (actual / 60)
+        #puts "waited #{actual} seconds" if actual != seconds
     end
+
+    def spend_up_to seconds
+        t = @player.clock
+        n = 0
+        seconds.times do
+            t += 1
+            n += 1
+        end
+        @player.add_time n
+        {:actual => n}
+    end
+
 
     def append_todo note
         id = @world.generate_id
@@ -702,7 +729,8 @@ class App
                 player.set_location point2
                 puts "moving along surface for 1 minute"
                 print_dots 6
-                @player.add_time 60
+                #@player.add_time 60
+                spend_up_to 60
                 look
             end
         else
@@ -718,6 +746,7 @@ class App
                 transfer_object player, here, dest
                 #puts "moved to #{dest.name}"
                 look
+                spend_up_to 1
             end
         end
     end
@@ -751,6 +780,7 @@ class App
                 end
                 #puts "climbing onto #{thing.name}"
                 look
+                spend_up_to 1
             end
         end
     end
@@ -769,6 +799,7 @@ class App
                 transfer_object player, here, surroundings
                 #puts "moved from #{thing.name} to #{surroundings.name}"
                 look
+                spend_up_to 1
             end
         end
     end
@@ -788,7 +819,7 @@ class App
     end
 
     def go_forward
-        puts "CHARGE AHEAD!!!"
+        puts "CHARGE AHEAD!!! (no effect)"
     end
 
     def go_back
@@ -797,7 +828,7 @@ class App
             stop_driving
             look
         else
-            puts "backtracking..."
+            puts "backtracking... (no effect)"
         end
     end
 
@@ -861,7 +892,8 @@ class App
                 puts "takes #{format_time(meters / speed)}"
                 player.set_location thing.location
                 seconds = (meters / speed).round
-                @player.add_time seconds
+                #@player.add_time seconds
+                spend_up_to seconds
             end
         end
     end
@@ -932,6 +964,7 @@ class App
                 player.move_to_surface to_surf.id
                 player.clear_location
                 look
+                spend_up_to 1
             end
         end
     end
@@ -949,6 +982,7 @@ class App
             else
                 transfer_object player, here, to_surf
                 look
+                spend_up_to 1
             end
         end
     end
@@ -971,18 +1005,6 @@ class App
     end
 
     def hud_report
-        player = self.get_avatar
-        vehicle = player.vehicle
-        health = player.health
-        oxygen = player.oxygen
-        food = player.food
-        energy = player.energy
-        h2 = vehicle ? vehicle.health.percent.to_s : ""
-        e2 = vehicle ? vehicle.energy.percent.to_s : ""
-        puts "HEALTH #{health.percent.to_s.rjust(3)} \e[96m#{h2.rjust(3)}\e[0m"
-        puts "OXYGEN #{oxygen.percent.to_s.rjust(3)}"
-        puts "ENERGY #{energy&.percent.to_s.rjust(3)} \e[96m#{e2.rjust(3)}\e[0m"
-        puts "FOOD   #{food.percent.to_s.rjust(3)}"
     end
 
     def mist
@@ -992,7 +1014,7 @@ class App
     def prompt
         player = self.get_avatar
         vehicle = player.vehicle
-        vehicle ? "#{vehicle.name}>" : "> "
+        vehicle ? "#{vehicle.name}> " : "> "
     end
 
     def empty_command

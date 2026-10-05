@@ -1,5 +1,4 @@
 addclass mobs
-addclass powerbars
 addclass objects
 addclass surfaces
 addclass edges
@@ -8,17 +7,9 @@ addclass todos
 addclass players
 addclass tube_geometries
 addprop mobs object_id nil
-addprop mobs health_id nil
-addprop mobs oxygen_id nil
-addprop mobs food_id nil
-addprop mobs energy_id nil
-addprop mobs fuel_id nil
 addprop mobs speed 0.5
 addprop mobs driving_id nil
-addprop powerbars value 0
-addprop powerbars value_max 100
-addprop powerbars regen nil
-addprop powerbars cooldown 0
+addprop mobs hands true
 addprop objects name "(empty)"
 addprop objects on_surface_id nil
 addprop objects container_id nil
@@ -32,6 +23,8 @@ addprop surfaces size 10
 addprop surfaces outer false
 addprop surfaces glass false
 addprop surfaces inverse true
+addprop surfaces controls false
+addprop surfaces temperature nil
 addprop edges surface_id nil
 addprop edges index 0
 addprop edges to_edge_id nil
@@ -51,12 +44,6 @@ addprop tube_geometries length 4.0
 spawnid mobs 5
 spawnid mobs 61
 spawnid mobs 62
-spawnid powerbars 9
-spawnid powerbars 10
-spawnid powerbars 60
-spawnid powerbars 66
-spawnid powerbars 67
-spawnid powerbars 75
 spawnid objects 11
 spawnid objects 12
 spawnid objects 13
@@ -115,36 +102,30 @@ spawnid todos 69
 spawnid todos 70
 spawnid todos 73
 spawnid todos 74
+spawnid todos 78
+spawnid todos 80
+spawnid todos 81
 spawnid players 50
 spawnid tube_geometries 54
 set mobs 5 object_id 14
 set mobs 61 object_id 15
 set mobs 62 object_id 55
-set mobs 5 health_id 9
-set mobs 61 health_id 66
-set mobs 62 health_id 67
-set mobs 5 oxygen_id 10
-set mobs 5 food_id 60
-set mobs 62 energy_id 75
 set mobs 61 speed 110.0
 set mobs 62 speed 10.0
-set powerbars 9 value 100
-set powerbars 10 value 100
-set powerbars 60 value 100
-set powerbars 66 value 30
-set powerbars 67 value 50
+set mobs 61 hands false
+set mobs 62 hands false
 set objects 11 name "fuse"
 set objects 12 name "spanner"
 set objects 13 name "ration"
 set objects 14 name "Player"
 set objects 15 name "Ship 15"
 set objects 55 name "Truck"
-set objects 13 on_surface_id 16
+set objects 12 on_surface_id 72
+set objects 13 on_surface_id 72
 set objects 14 on_surface_id 17
 set objects 15 on_surface_id 49
 set objects 55 on_surface_id 17
 set objects 11 container_id 14
-set objects 12 container_id 14
 set objects 11 size 6
 set objects 12 size 7
 set objects 13 size 7
@@ -178,6 +159,13 @@ set surfaces 20 outer true
 set surfaces 72 outer true
 set surfaces 71 glass true
 set surfaces 20 inverse false
+set surfaces 71 controls true
+set surfaces 16 temperature 25.0
+set surfaces 17 temperature 25.0
+set surfaces 18 temperature 25.0
+set surfaces 19 temperature 25.0
+set surfaces 49 temperature -117.0
+set surfaces 71 temperature 25.0
 set edges 21 surface_id 16
 set edges 22 surface_id 17
 set edges 23 surface_id 17
@@ -264,6 +252,9 @@ set todos 69 note "vehicle health appended to HUD"
 set todos 70 note "truck needs an interior surface (controls)"
 set todos 73 note "need to enter and exit simple vehicles"
 set todos 74 note "equipment, such as space suit"
+set todos 78 note "check command to get report about object"
+set todos 80 note "it's cold. heater depletes energy over time"
+set todos 81 note "code to list all items in a complex"
 set todos 30 check "CHECK"
 set todos 31 check "CHECK"
 set todos 32 check "CHECK"
@@ -272,12 +263,16 @@ set todos 34 check "CHECK"
 set todos 35 check "CHECK"
 set todos 46 check "CHECK"
 set todos 53 check "CHECK"
+set todos 56 check "CHECK"
 set todos 58 check "CHECK"
 set todos 59 check "CHECK"
 set todos 65 check "CHECK"
+set todos 68 check "CHECK"
+set todos 69 check "CHECK"
 set todos 70 check "CHECK"
+set todos 73 check "CHECK"
 set players 50 mob_id 5
-set players 50 clock 791
+set players 50 clock 8866
 set tube_geometries 54 surface_id 49
 set tube_geometries 54 circumference 1600.0
 set tube_geometries 54 length 3200.0

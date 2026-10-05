@@ -7,7 +7,6 @@ class Mob < Entity
         @mobs = world.mobs
         @objects = world.objects
         @surfaces = world.surfaces
-        @powerbars = world.powerbars
         thing_id = @mobs.get(:object_id, mob_id)
         @thing = Thing.new(world, thing_id)
         @world = world
@@ -49,26 +48,6 @@ class Mob < Entity
 
     def things
         @objects.find_by(:container_id, @thing.id)
-    end
-
-    def health
-        health_id = @mobs.get(:health_id, @id)
-        health_id && Powerbar.new(@world, health_id)
-    end
-
-    def oxygen
-        oxygen_id = @mobs.get(:oxygen_id, @id)
-        oxygen_id && Powerbar.new(@world, oxygen_id)
-    end
-
-    def food
-        food_id = @mobs.get(:food_id, @id)
-        food_id && Powerbar.new(@world, food_id)
-    end
-
-    def energy
-        energy_id = @mobs.get(:energy_id, @id)
-        energy_id && Powerbar.new(@world, energy_id)
     end
 
     def speed

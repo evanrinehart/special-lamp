@@ -270,6 +270,10 @@ class SomeWorld
         @tables[name]
     end
 
+    def all(name)
+        @tables[name].idlist
+    end
+
     def save_world(filename)
         store = PStore.new(filename)
         store.transaction do
