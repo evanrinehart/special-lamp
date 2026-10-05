@@ -22,6 +22,11 @@ class ClassData
         @defaults[prop]
     end
 
+    def set_default prop, value
+        raise "#{@name} #{prop} not found" unless @defaults.has_key? prop
+        @defaults[prop] = value
+    end
+
     def exists? id
         @idlist.include? id
     end

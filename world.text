@@ -6,6 +6,7 @@ addclass size_hints
 addclass todos
 addclass players
 addclass tube_geometries
+addclass devices
 addprop mobs object_id nil
 addprop mobs speed 0.5
 addprop mobs driving_id nil
@@ -17,6 +18,8 @@ addprop objects size 10
 addprop objects x nil
 addprop objects y nil
 addprop objects entry_id nil
+addprop objects bar nil
+addprop objects heat_counter nil
 addprop surfaces name "(somewhere)"
 addprop surfaces object_id nil
 addprop surfaces size 10
@@ -41,6 +44,13 @@ addprop players clock 0
 addprop tube_geometries surface_id nil
 addprop tube_geometries circumference 4.0
 addprop tube_geometries length 4.0
+addprop devices object_id nil
+addprop devices prototype :null
+addprop devices power_draw 0
+addprop devices energy nil
+addprop devices quality :basic
+addprop devices cooldown nil
+addprop devices enabled false
 spawnid mobs 5
 spawnid mobs 61
 spawnid mobs 62
@@ -107,6 +117,12 @@ spawnid todos 80
 spawnid todos 81
 spawnid players 50
 spawnid tube_geometries 54
+spawnid devices 82
+spawnid devices 83
+spawnid devices 84
+spawnid devices 85
+spawnid devices 86
+spawnid devices 87
 set mobs 5 object_id 14
 set mobs 61 object_id 15
 set mobs 62 object_id 55
@@ -135,6 +151,8 @@ set objects 15 x 1000.0
 set objects 15 y 0.0
 set objects 15 entry_id 17
 set objects 55 entry_id 71
+set objects 15 heat_counter 1000000
+set objects 55 heat_counter 1000000
 set surfaces 16 name "Cryochamber"
 set surfaces 17 name "Loading Bay"
 set surfaces 18 name "Supply Closet"
@@ -276,3 +294,23 @@ set players 50 clock 8866
 set tube_geometries 54 surface_id 49
 set tube_geometries 54 circumference 1600.0
 set tube_geometries 54 length 3200.0
+set devices 82 object_id 55
+set devices 83 object_id 55
+set devices 84 object_id 55
+set devices 85 object_id 55
+set devices 86 object_id 55
+set devices 87 object_id 55
+set devices 82 prototype :battery
+set devices 83 prototype :motor
+set devices 84 prototype :heater
+set devices 85 prototype :insulation
+set devices 86 prototype :powerplug
+set devices 87 prototype :charger
+set devices 82 power_draw -100
+set devices 83 power_draw 5
+set devices 84 power_draw 10
+set devices 87 power_draw 100
+set devices 82 energy 100000
+set devices 85 cooldown 30
+set devices 85 enabled nil
+set devices 86 enabled nil

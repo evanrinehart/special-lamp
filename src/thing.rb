@@ -7,6 +7,7 @@ class Thing < Entity
         @mobs = world.mobs
         @things = world.objects
         @surfaces = world.surfaces
+        @devices = world.devices
         @world = world
     end
 
@@ -100,6 +101,32 @@ class Thing < Entity
 
     def temperature
         self.on_surface&.measure_temperature
+    end
+
+    def heat_counter
+        @things.get(:heat_counter, @id)
+    end
+
+    def set_heat_counter value
+        @things.set(:heat_counter, @id, value)
+    end
+
+    def devices
+        @devices.find_by(:object_id, @id).map{|x| Device.new(@world, x.id) }
+    end
+
+    def can_move?
+        mob = self.mob
+        motor = devices.filter{|x| x.prototype == :motor}.first
+        if mob.nil?
+            false
+        elsif motor.nil?
+            true
+        elsif motor.enabled
+            true
+        else
+            false
+        end
     end
 
 end

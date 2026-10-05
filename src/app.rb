@@ -5,7 +5,8 @@ require 'edge'
 require 'thing'
 require 'mob'
 require 'player'
-
+require 'temperature'
+require 'time'
 
 class CommandFilter
 
@@ -22,6 +23,7 @@ class CommandFilter
         in "i" then app.inventory
         in "time" then app.print_time
         in "date" then app.print_date
+        in "temp" then app.print_temp
 
         in "n" then app.go :n
         in "e" then app.go :e
@@ -43,20 +45,23 @@ class CommandFilter
 
         in "drive" then drive args
 
+        in "check" then check args
+
         in "r" then app.reload
         in "save" then app.save
         in "forget" then app.revert
         in "schema" then app.schema
         in "d" then dump args
         in "df" then dump_file args
-        in "wait" then app.wait args[0].to_i
-        in "." then app.wait args[0].to_i
+        in "wait" then app.wait_minutes args[0].to_i
+        in "." then app.wait_seconds args[0].to_i
         in "set" then set args
         in "move" then app.move args[0].to_i, args[1].to_i
         in "drop" then app.drop args[0].to_i
         in "take" then app.take args[0].to_i
         in "addprop" then add_prop args
         in "rmprop" then rm_prop! args
+        in "setdefault" then setdefault args
         in "addclass" then add_class args
         in "rmclass" then rm_class args
         in "spawn" then spawn args
@@ -140,6 +145,17 @@ class CommandFilter
         end
     end
 
+    def setdefault args
+        if args.count < 3
+            puts "hint: setdefault <class> <prop> <value>"
+        else
+            k = args[0].to_sym
+            p = args[1].to_sym
+            v = parse_value(args[2])
+            app.set_default k, p, v
+        end
+    end
+
     def add_class args
         if args.count < 1
             puts "hint: addclass <class>"
@@ -203,6 +219,14 @@ class CommandFilter
             puts "file will be overwritten without warning"
         else
             app.dump_file args[0]
+        end
+    end
+
+    def check args
+        if args.empty?
+            puts "check <object>"
+        else
+            app.check args[0].to_i
         end
     end
 
@@ -291,6 +315,7 @@ class App
     def initialize(world, filename="world.save")
         @filename = filename
         @world = world
+        @driver = TimeDriver.new @world
         @player = Player.new(world, world.players.first.id)
         @reloadables = [
             'entity.rb',
@@ -298,7 +323,10 @@ class App
             'edge.rb',
             'mob.rb',
             'thing.rb',
+            'device.rb',
             'player.rb',
+            'time.rb',
+            'temperature.rb',
             'geometry.rb',
             'app.rb'
         ]
@@ -525,6 +553,17 @@ class App
         end
     end
 
+    def set_default klass, prop, value
+        table = @world[klass]
+        if table.nil?
+            puts "no such class"
+        elsif table.has_prop?(prop) == false
+            puts "no such prop"
+        else
+            table.set_default prop, value
+        end
+    end
+
     def add_class name
         table = @world[name]
         if table.nil?
@@ -591,19 +630,37 @@ class App
         @reloadables.push filename
     end
 
-    def wait(n)
-        if n < 1
-            amount = 1
-            message = "you wait a minute"
-        elsif n < 25
-            amount = n
-            message = "ready"
+    def wait_seconds n
+        n = 1 if n < 1
+        puts "waiting #{n} second#{n > 1 ? 's' : ''}"
+        count = @driver.try_advance_seconds n
+        puts "events: #{@driver.get_events}"
+        if count < n
+            puts "only #{count} second#{count > 1 ? 's' : ''} passed"
+        end
+    end
+
+    def wait_minutes(n)
+        if n <= 1
+            puts "waiting 1 minute"
+            minutes = 1
+        elsif n <= 25
+            minutes = n
         else
-            amount = 25
-            message = "you get tired of waiting"
+            minutes = 25
+            impatient = true
         end
 
-        puts "not yet implemented"
+        minutes.times do
+            count = @driver.try_advance_seconds 60
+            puts "events: #{@driver.get_events}"
+            if count < 60
+                puts "you stop waiting early"
+                return
+            end
+        end
+
+        puts "you got tired of waiting" if impatient
     end
 
 
@@ -965,8 +1022,27 @@ class App
         end
     end
 
+    def check thing_id
+        player = self.get_puppet.thing
+        thing = select_thing thing_id, player
+        if thing.nil?
+            puts "no such thing"
+        else
+            puts "#{thing.name}:"
+            thing.devices.each do |dev|
+                puts "#{dev.quality} #{dev.prototype} #{dev.enabled == false ? "(disabled)" : ""}"
+            end
+        end
+    end
+
     def print_time
         puts "#{@player.show_time}"
+    end
+
+    def print_temp
+        player = self.get_puppet.thing
+        here = player.on_surface
+        puts "#{here.format_temperature}"
     end
 
     def print_date
