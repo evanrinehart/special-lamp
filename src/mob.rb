@@ -41,6 +41,10 @@ class Mob < Entity
         @thing.name
     end
 
+    def movement
+        @mobs.get(:movement, @id)
+    end
+
     def surface
         surf_id = @thing.on_surface_id
         surf_id && Surface.new(@world, surf_id)

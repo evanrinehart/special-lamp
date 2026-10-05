@@ -315,8 +315,8 @@ class App
     def initialize(world, filename="world.save")
         @filename = filename
         @world = world
-        @driver = TimeDriver.new @world
         @player = Player.new(world, world.players.first.id)
+        @driver = TimeDriver.new @world, @player
         @reloadables = [
             'entity.rb',
             'surface.rb',
@@ -632,11 +632,15 @@ class App
 
     def wait_seconds n
         n = 1 if n < 1
-        puts "waiting #{n} second#{n > 1 ? 's' : ''}"
-        count = @driver.try_advance_seconds n
-        puts "events: #{@driver.get_events}"
-        if count < n
-            puts "only #{count} second#{count > 1 ? 's' : ''} passed"
+        if n > 90
+            puts "the wait <minutes> command might be better for that"
+        else
+            puts "waiting #{n} second#{n > 1 ? 's' : ''}"
+            count = @driver.try_advance_seconds n
+            puts "events: #{@driver.get_events}"
+            if count < n
+                puts "only #{count} second#{count > 1 ? 's' : ''} passed"
+            end
         end
     end
 
@@ -731,6 +735,33 @@ class App
         vehicle || avatar
     end
 
+    def land_travel surface, point1, point2, seconds, thing, effect: :slow
+        geometry = surface.geometry
+        count = 0
+        loc = point1
+        divisor = effect==:slow ? 60 : 15
+        delay = effect==:slow ? 0.7 : 0.12
+        seconds.times do
+            count += 1
+            loc = geometry.interpolate point1, point2, (count.to_f / seconds)
+            thing.set_location loc
+            stop = @driver.advance_second
+            if count % divisor == 0
+                events = @driver.get_events
+                puts "<#{@player.show_time}> #{thing.mob.movement}" unless seconds <= divisor
+                sleep delay unless seconds <= divisor
+            end
+            if stop
+                puts "something interrupted the trip"
+                break
+            end
+        end
+        if count == seconds
+            loc = point2
+            thing.set_location point2
+        end
+    end
+
     def go direction
         player = self.get_puppet.thing
         surf = player.on_surface
@@ -751,21 +782,24 @@ class App
 
         if way.nil? && geo.nil?
             puts "way not found"
-        elsif way.nil?
+        elsif way.nil? # geometry yes
+
+            walk_time = 60
+
             point1 = player.location
             tn = geo.tangent_from_compass point1, direction
             speed = player.mob.speed
             vel = geo.make_velocity tn, speed
             ttb = geo.time_to_boundary point1, vel
-            if ttb && ttb < 60.0
-                puts "that way surface ends. better stay put for now"
+            if ttb && ttb < 1.0
+                puts "that way surface ends"
+            elsif ttb && ttb < walk_time
+                point2 = geo.motion point1, vel, ttb.floor.to_f
+                land_travel surf, point1, point2, ttb.floor, player
+                look
             else
-                point2 = geo.motion point1, vel, 60.0
-                player.set_location point2
-                puts "moving along surface for 1 minute"
-                print_dots 6
-                #@player.add_time 60
-                #spend_up_to 60
+                point2 = geo.motion point1, vel, walk_time.to_f
+                land_travel surf, point1, point2, walk_time, player
                 look
             end
         else
@@ -780,6 +814,8 @@ class App
             else
                 transfer_object player, here, dest
                 #puts "moved to #{dest.name}"
+                stop = @driver.advance_second
+                puts "events = #{@driver.get_events}"
                 look
                 #spend_up_to 1
             end
@@ -921,12 +957,17 @@ class App
             if meters <= 5
                 puts "You're there!"
             else
+                point1 = player.location
+                point2 = thing.location
                 speed = player.mob.speed
+                effect = speed >= 10.0 ? :fast : :slow
+                time = (meters / speed).ceil
                 puts "move #{meters.round} meters toward #{thing.name}"
-                print_dots 6
-                puts "takes #{format_time(meters / speed)}"
-                player.set_location thing.location
-                seconds = (meters / speed).round
+                puts "taking #{format_time(meters / speed)} ... "
+                land_travel surface, point1, point2, time, player, effect: effect
+                look
+                #player.set_location thing.location
+                #seconds = (meters / speed).round
                 #@player.add_time seconds
                 #spend_up_to seconds
             end

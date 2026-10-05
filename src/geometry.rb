@@ -44,6 +44,14 @@ class PlaneGeometry
         end
     end
 
+    def interpolate point1, point2, factor
+        dir = self.direction point2, point1
+        return nil if dir.nil?
+        dist = self.distance point2, point1
+        vel = self.make_velocity dir, dist*factor
+        self.motion point1, vel, 1.0
+    end
+
 end
 
 class TileGeometry < PlaneGeometry
@@ -148,7 +156,7 @@ class TubeGeometry
     end
 
     def direction point2, point1
-        point1 == point2 ? nil : delta_xy(point1,point2).normalize
+        point1 == point2 ? nil : delta_xy(point2, point1).normalize
     end
 
     def make_velocity dir, speed
@@ -165,10 +173,11 @@ class TubeGeometry
         return nil if vel.nil? || vel[0].zero?
         x = point[0]
         vx = vel[0]
-        if vx < 0
-            x / -vx
+        if vx < 0.0
+            x > 0.001 ? x / -vx : 0.0
         else
-            (@length - x) / vx
+            standoff = @length - x
+            standoff > 0.001 ? standoff / vx : 0.0
         end
     end
 
@@ -195,6 +204,14 @@ class TubeGeometry
         in :w then Vector[-1.0, 0.0]
         else raise 'invalid direction'
         end
+    end
+
+    def interpolate point1, point2, factor
+        dir = self.direction point2, point1
+        return nil if dir.nil?
+        dist = self.distance point2, point1
+        vel = self.make_velocity dir, dist*factor
+        self.motion point1, vel, 1.0
     end
 
 end
@@ -228,7 +245,7 @@ class SphereGeometry
     def direction point2, point1
         v2 = to_vector3 point2
         v1 = to_vector3 point1
-        v3 = v2.cross(v1)
+        v3 = v1.cross(v2)
         v3.norm < 0.000001 ? nil : v3.normalize
     end
 
@@ -304,6 +321,16 @@ class SphereGeometry
         in :s then rotate_vector(Vector[0.0,1.0,0.0], lon_angle, Vector[1.0, 0.0, 0.0])
         else raise 'invalid direction'
         end
+    end
+
+    def interpolate point1, point2, factor
+        axis = self.direction point2, point1
+        return nil if axis.nil?
+        v1 = to_vector3 point1
+        v2 = to_vector3 point2
+        angle = Math.acos(v2.dot(v1))
+        v3 = rotate_vector(axis, angle*factor, v1)
+        from_vector3 v3
     end
 
 end
