@@ -299,7 +299,6 @@ class App
             'mob.rb',
             'thing.rb',
             'player.rb',
-            'powerbar.rb',
             'geometry.rb',
             'app.rb'
         ]
@@ -604,28 +603,7 @@ class App
             message = "you get tired of waiting"
         end
 
-        # we directed the game to n minutes.
-        # something might need to be done before that.
-        # and something might interrupt your waiting.
-        # we need to query the time of that next event. do it, then resume waiting (or not).
-
-        puts "needs work"
-
-        #seconds = amount * 60
-        #report = spend_up_to(seconds)
-        #print_dots (actual / 60)
-        #puts "waited #{actual} seconds" if actual != seconds
-    end
-
-    def spend_up_to seconds
-        t = @player.clock
-        n = 0
-        seconds.times do
-            t += 1
-            n += 1
-        end
-        @player.add_time n
-        {:actual => n}
+        puts "not yet implemented"
     end
 
 
@@ -730,7 +708,7 @@ class App
                 puts "moving along surface for 1 minute"
                 print_dots 6
                 #@player.add_time 60
-                spend_up_to 60
+                #spend_up_to 60
                 look
             end
         else
@@ -746,7 +724,7 @@ class App
                 transfer_object player, here, dest
                 #puts "moved to #{dest.name}"
                 look
-                spend_up_to 1
+                #spend_up_to 1
             end
         end
     end
@@ -780,7 +758,7 @@ class App
                 end
                 #puts "climbing onto #{thing.name}"
                 look
-                spend_up_to 1
+                #spend_up_to 1
             end
         end
     end
@@ -799,7 +777,7 @@ class App
                 transfer_object player, here, surroundings
                 #puts "moved from #{thing.name} to #{surroundings.name}"
                 look
-                spend_up_to 1
+                #spend_up_to 1
             end
         end
     end
@@ -893,7 +871,7 @@ class App
                 player.set_location thing.location
                 seconds = (meters / speed).round
                 #@player.add_time seconds
-                spend_up_to seconds
+                #spend_up_to seconds
             end
         end
     end
@@ -964,7 +942,7 @@ class App
                 player.move_to_surface to_surf.id
                 player.clear_location
                 look
-                spend_up_to 1
+                #spend_up_to 1
             end
         end
     end
@@ -982,7 +960,7 @@ class App
             else
                 transfer_object player, here, to_surf
                 look
-                spend_up_to 1
+                #spend_up_to 1
             end
         end
     end
