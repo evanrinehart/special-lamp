@@ -8,6 +8,7 @@ require 'door'
 require 'player'
 require 'temperature'
 require 'time'
+require 'names'
 
 class CommandFilter
 
@@ -25,6 +26,8 @@ class CommandFilter
         in "time" then app.print_time
         in "date" then app.print_date
         in "temp" then app.print_temp
+
+        in "match" then app.match args[0]
 
         in "n" then app.go :n
         in "e" then app.go :e
@@ -88,6 +91,10 @@ class CommandFilter
             puts "  wait <n>"
             puts "  take <object>"
             puts "  drop <object>"
+            puts "  time"
+            puts "  temp"
+            puts "  range"
+            puts "  drive"
         else puts "unknown command"
         end
         nil
@@ -330,6 +337,7 @@ class App
             'time.rb',
             'temperature.rb',
             'geometry.rb',
+            'names.rb',
             'app.rb'
         ]
     end
@@ -1116,6 +1124,49 @@ class App
 
     def empty_command
         hud_report
+    end
+
+    def match str
+        ns = NameSearch.new @world
+        player = self.get_puppet.thing
+        here = player.on_surface
+        surfs = visible_surfaces_from here, player.location
+
+        results = ns.find_by_fragment surfs, [player], str
+        results.each do |r|
+            puts "#{r.id} #{r.name} on #{r.on_surface_id.inspect} or #{r.container_id.inspect}"
+        end
+        puts "#{results.count} results"
+
+    end
+
+    def visible_surfaces_from surface, point
+        results = []
+        results.push surface
+
+        geo = surface.geometry
+        surface.things.each do |thing|
+            next if geo && geo.distance(point, thing.location) > 5
+            thing.outer_surfaces.each{|surf| results.push surf}
+        end
+
+        host = surface.host_object
+        if host && surface.outer?
+            env = host&.on_surface
+            results.push env
+
+            geo = env.geometry
+            loc = host.location
+            env.things.each do |thing|
+                next if geo && geo.distance(loc, thing.location) > 5
+                thing.outer_surfaces.each do |surf|
+                    next if surf.id == surface.id
+                    results.push surf
+                end
+            end
+        end
+
+        results
     end
 
 end

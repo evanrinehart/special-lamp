@@ -31,6 +31,11 @@ class Surface < Entity
         @surfaces.get(:controls, @id)
     end
 
+    def geometry_id
+        @surfaces.get(:geometry_id, @id)
+    end
+
+
     def far? thing1, thing2
         if simple?
             false
@@ -97,8 +102,12 @@ class Surface < Entity
 
     def geometry
         # should instead pick the right geometry, not always Tube
-        g = @world.tube_geometries.find_first_by(:surface_id, @id)
-        g && TubeGeometry.new(g.circumference, g.length)
+        if @world.tube_geometries.exists? geometry_id
+            g = @world.tube_geometries[geometry_id]
+            TubeGeometry.new(g.circumference, g.length)
+        else
+            nil
+        end
     end
 
     def surroundings_surface

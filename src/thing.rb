@@ -31,6 +31,10 @@ class Thing < Entity
         @things.set(:y, @id, nil)
     end
 
+    def container_id
+        @things.get(:container_id, @id)
+    end
+
     def on_surface_id
         @things.get(:on_surface_id, @id)
     end

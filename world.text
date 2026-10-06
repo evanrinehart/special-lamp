@@ -30,6 +30,7 @@ addprop surfaces glass false
 addprop surfaces inverse true
 addprop surfaces controls false
 addprop surfaces temperature nil
+addprop surfaces geometry_id nil
 addprop edges surface_id nil
 addprop edges index 0
 addprop edges to_edge_id nil
@@ -148,9 +149,9 @@ set objects 88 name "Diamond Obelisk"
 set objects 89 name "Diamond Obelisk"
 set objects 12 on_surface_id 72
 set objects 13 on_surface_id 72
-set objects 14 on_surface_id 17
+set objects 14 on_surface_id 20
 set objects 15 on_surface_id 49
-set objects 55 on_surface_id 17
+set objects 55 on_surface_id 49
 set objects 88 on_surface_id 49
 set objects 89 on_surface_id 49
 set objects 11 container_id 14
@@ -162,15 +163,17 @@ set objects 15 size 12
 set objects 88 size 11
 set objects 89 size 11
 set objects 15 x 1000.0
+set objects 55 x 1000.0
 set objects 88 x 1030.0
 set objects 89 x 990.0
 set objects 15 y 0.0
+set objects 55 y 0.0
 set objects 88 y 100.0
 set objects 89 y 400.0
 set objects 15 entry_id 17
 set objects 55 entry_id 71
-set objects 15 heat_counter 220588
-set objects 55 heat_counter 563505
+set objects 15 heat_counter 2878
+set objects 55 heat_counter 408541
 set surfaces 16 name "Cryochamber"
 set surfaces 17 name "Loading Bay"
 set surfaces 18 name "Supply Closet"
@@ -196,12 +199,13 @@ set surfaces 72 outer true
 set surfaces 71 glass true
 set surfaces 20 inverse false
 set surfaces 71 controls true
-set surfaces 16 temperature -82.0
-set surfaces 17 temperature -82.0
-set surfaces 18 temperature -81.0
-set surfaces 19 temperature -81.0
+set surfaces 16 temperature -84.0
+set surfaces 17 temperature -83.0
+set surfaces 18 temperature -83.0
+set surfaces 19 temperature -83.0
 set surfaces 49 temperature -117.0
-set surfaces 71 temperature 22.0
+set surfaces 71 temperature 20.0
+set surfaces 49 geometry_id 54
 set edges 21 surface_id 16
 set edges 22 surface_id 17
 set edges 23 surface_id 17
@@ -310,7 +314,7 @@ set todos 69 check "CHECK"
 set todos 70 check "CHECK"
 set todos 73 check "CHECK"
 set players 50 mob_id 5
-set players 50 clock 22984
+set players 50 clock 23111
 set tube_geometries 54 surface_id 49
 set tube_geometries 54 circumference 1600.0
 set tube_geometries 54 length 3200.0
@@ -331,9 +335,7 @@ set devices 83 power_draw 5
 set devices 84 power_draw 10
 set devices 87 power_draw 100
 set devices 82 energy 0
-set devices 85 cooldown 30
 set devices 82 enabled true
 set devices 84 enabled true
 set devices 85 enabled nil
 set devices 86 enabled nil
-set doors 90 closed true

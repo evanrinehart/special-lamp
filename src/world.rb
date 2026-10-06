@@ -44,6 +44,7 @@ class ClassData
     end
 
     def [](id)
+        raise "#{@name} index failed #{id.inspect}" unless @idlist.include? id
         RowProxy.new(self, id)
     end
 
