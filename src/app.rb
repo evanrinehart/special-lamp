@@ -1073,7 +1073,7 @@ class App
         else
             puts "#{thing.name}:"
             thing.devices.each do |dev|
-                puts "#{dev.quality} #{dev.prototype} #{dev.enabled == false ? "(disabled)" : ""}"
+                puts "#{dev.quality} #{dev.prototype} #{dev.enabled? == false ? "(disabled)" : ""}"
             end
         end
     end

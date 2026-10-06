@@ -169,8 +169,8 @@ set objects 88 y 100.0
 set objects 89 y 400.0
 set objects 15 entry_id 17
 set objects 55 entry_id 71
-set objects 15 heat_counter 718538
-set objects 55 heat_counter 848927
+set objects 15 heat_counter 220588
+set objects 55 heat_counter 563505
 set surfaces 16 name "Cryochamber"
 set surfaces 17 name "Loading Bay"
 set surfaces 18 name "Supply Closet"
@@ -196,12 +196,12 @@ set surfaces 72 outer true
 set surfaces 71 glass true
 set surfaces 20 inverse false
 set surfaces 71 controls true
-set surfaces 16 temperature -45.0
-set surfaces 17 temperature -44.0
-set surfaces 18 temperature -44.0
-set surfaces 19 temperature -44.0
+set surfaces 16 temperature -82.0
+set surfaces 17 temperature -82.0
+set surfaces 18 temperature -81.0
+set surfaces 19 temperature -81.0
 set surfaces 49 temperature -117.0
-set surfaces 71 temperature 25.0
+set surfaces 71 temperature 22.0
 set edges 21 surface_id 16
 set edges 22 surface_id 17
 set edges 23 surface_id 17
@@ -310,7 +310,7 @@ set todos 69 check "CHECK"
 set todos 70 check "CHECK"
 set todos 73 check "CHECK"
 set players 50 mob_id 5
-set players 50 clock 21234
+set players 50 clock 22984
 set tube_geometries 54 surface_id 49
 set tube_geometries 54 circumference 1600.0
 set tube_geometries 54 length 3200.0
@@ -330,8 +330,9 @@ set devices 82 power_draw -100
 set devices 83 power_draw 5
 set devices 84 power_draw 10
 set devices 87 power_draw 100
-set devices 82 energy 100000
+set devices 82 energy 0
 set devices 85 cooldown 30
+set devices 82 enabled true
 set devices 84 enabled true
 set devices 85 enabled nil
 set devices 86 enabled nil

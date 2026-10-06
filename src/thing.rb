@@ -149,12 +149,10 @@ class Thing < Entity
 
     def can_move?
         mob = self.mob
-        motor = devices.filter{|x| x.prototype == :motor}.first
+        motor = devices.filter{|x| x.enabled? && x.prototype == :motor}.first
         if mob.nil?
             false
         elsif motor.nil?
-            true
-        elsif motor.enabled
             true
         else
             false

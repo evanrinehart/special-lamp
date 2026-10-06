@@ -21,8 +21,21 @@ class Device < Entity
         @devices.get(:prototype, @id)
     end
 
-    def enabled
+    def enabled?
         @devices.get(:enabled, @id)
+    end
+
+    def energy
+        @devices.get(:energy, @id)
+    end
+
+    def deduct_energy n
+        lvl = self.energy
+        @devices.set(:energy, @id, [lvl - n, 0].max)
+    end
+
+    def power_draw
+        @devices.get(:power_draw, @id)
     end
 
 end
