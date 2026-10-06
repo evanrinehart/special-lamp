@@ -1,3 +1,5 @@
+require 'temperature'
+
 class TimeDriver
 
     def initialize world, player
@@ -27,6 +29,17 @@ class TimeDriver
     end
 
     def advance_second
+
+        heat_driver = Heating.new @world
+
+        deltas = heat_driver.heat_counter_deltas
+        deltas.each do |entry|
+            thing = Thing.new(@world, entry[:thing_id])
+            heat_driver.apply_heat thing, entry[:delta], entry[:heating]
+        end
+
+        heat_driver.run_heaters
+
         @player.add_time 1
         nil
     end

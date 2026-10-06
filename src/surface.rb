@@ -74,7 +74,7 @@ class Surface < Entity
         all_edges = self.edges
         if all_edges.count == 1
             e = all_edges.first
-            e.open? ? e : nil
+            e.passable? ? e : nil
         else
             nil
         end
@@ -130,6 +130,10 @@ class Surface < Entity
 
     def temperature
         @surfaces.get(:temperature, @id)
+    end
+
+    def set_temperature value
+        @surfaces.set(:temperature, @id, value)
     end
 
     def measure_temperature

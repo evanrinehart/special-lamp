@@ -4,6 +4,7 @@ require 'surface'
 require 'edge'
 require 'thing'
 require 'mob'
+require 'door'
 require 'player'
 require 'temperature'
 require 'time'
@@ -324,6 +325,7 @@ class App
             'mob.rb',
             'thing.rb',
             'device.rb',
+            'door.rb',
             'player.rb',
             'time.rb',
             'temperature.rb',
@@ -809,7 +811,7 @@ class App
                 puts "no way"
             elsif player.size > dest.size
                 puts "As it stands you'd never fit."
-            elsif way.blocked?
+            elsif not way.passable?
                 puts "That way is blocked."
             else
                 transfer_object player, here, dest

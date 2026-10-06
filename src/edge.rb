@@ -24,8 +24,19 @@ class Edge < Entity
         @edges.get(:blocked, @id)
     end
 
-    def open?
-        not self.blocked?
+    def passable?
+        return false if blocked?
+        d = self.door
+        d.nil? || d.open?
+    end
+
+    def door
+        did = self.door_id
+        did && Door.new(@world, did)
+    end
+
+    def door_id
+        @edges.get(:door_id, @id)
     end
 
     def index
@@ -45,21 +56,22 @@ class Edge < Entity
         eid && Edge.new(@world, to_edge_id)
     end
 
-    def to_surface
-        if self.to_edge_id
-            to_edge.surface
-        else
-            nil
-        end
-    end
-
     def goes_to_surface? surface_id
         other_surface = to_edge.surface
         other_surface && other_surface.id == surface_id
     end
 
     def goes_outside?
+        return true if self.to_edge_id.nil?
         to_surface.outer?
+    end
+
+    def to_surface
+        if self.to_edge_id
+            to_edge.surface
+        else
+            nil
+        end
     end
 
 end

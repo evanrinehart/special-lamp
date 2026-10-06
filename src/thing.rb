@@ -103,12 +103,44 @@ class Thing < Entity
         self.on_surface&.measure_temperature
     end
 
+    def inside_temperature
+        temps = self.interior_surfaces.map{|x| x.temperature}
+        if temps.empty?
+            nil
+        else
+            min = temps.min
+            max = temps.max
+            (min.to_f + max.to_f) / 2
+        end
+    end
+
     def heat_counter
         @things.get(:heat_counter, @id)
     end
 
     def set_heat_counter value
         @things.set(:heat_counter, @id, value)
+    end
+
+    def heat_interior_by amount
+        surfs = self.interior_surfaces
+        return if surfs.empty?
+        winner = amount < 0 ? surfs.max_by{|x| x.temperature} : surfs.min_by{|x| x.temperature}
+        temp = winner.temperature
+        winner.set_temperature (temp + amount)
+        #puts "set #{winner.name} temp to #{temp + amount}"
+    end
+
+    def interior_surfaces
+        @surfaces.find_by(:object_id, @id).filter{|x| x.outer == false}.map{|x| Surface.new(@world, x.id) }
+    end
+
+    def insulation?
+        self.devices.filter{|x| x.prototype == :insulation}.empty? == false
+    end
+
+    def room_count
+        self.interior_surfaces.count
     end
 
     def devices
