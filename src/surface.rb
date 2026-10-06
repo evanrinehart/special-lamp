@@ -102,12 +102,10 @@ class Surface < Entity
 
     def geometry
         # should instead pick the right geometry, not always Tube
-        if @world.tube_geometries.exists? geometry_id
-            g = @world.tube_geometries[geometry_id]
-            TubeGeometry.new(g.circumference, g.length)
-        else
-            nil
-        end
+        gid = self.geometry_id
+        return nil if gid.nil?
+        tube = @world.tube_geometries[gid]
+        TubeGeometry.new(tube.circumference, tube.length)
     end
 
     def surroundings_surface
