@@ -47,6 +47,23 @@ class Edge < Entity
         @edges.get(:shortcut, @id)
     end
 
+    def center
+        x = @edges.get(:center_x, @id)
+        y = @edges.get(:center_y, @id)
+        x && y && Vector[x,y]
+    end
+
+    def origin
+        x = @edges.get(:origin_x, @id)
+        y = @edges.get(:origin_y, @id)
+        x && y && Vector[x,y]
+    end
+
+    def radius
+        geo = surface.geometry
+        geo && geo.distance(center, origin)
+    end
+
     def surface
         Surface.new(@world, surface_id)
     end

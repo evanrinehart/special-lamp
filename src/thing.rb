@@ -74,6 +74,10 @@ class Thing < Entity
         @things.get(:size, @id)
     end
 
+    def smush?
+        @things.get(:smush, @id)
+    end
+
     def is_mob?
         not @mobs.find_by(:object_id, @id).empty?
     end

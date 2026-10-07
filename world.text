@@ -8,6 +8,8 @@ addclass players
 addclass tube_geometries
 addclass devices
 addclass doors
+addclass sphere_geometries
+addclass tile_geometries
 addprop mobs object_id nil
 addprop mobs speed 0.5
 addprop mobs driving_id nil
@@ -22,6 +24,7 @@ addprop objects y nil
 addprop objects entry_id nil
 addprop objects bar nil
 addprop objects heat_counter nil
+addprop objects smush false
 addprop surfaces name "(somewhere)"
 addprop surfaces object_id nil
 addprop surfaces size 10
@@ -38,6 +41,10 @@ addprop edges form "passage"
 addprop edges shortcut nil
 addprop edges blocked false
 addprop edges door_id nil
+addprop edges center_x nil
+addprop edges center_y nil
+addprop edges origin_x nil
+addprop edges origin_y nil
 addprop size_hints size 10
 addprop size_hints note ""
 addprop todos note ""
@@ -55,6 +62,8 @@ addprop devices quality :basic
 addprop devices cooldown nil
 addprop devices enabled false
 addprop doors closed false
+addprop sphere_geometries circumference 4.0
+addprop tile_geometries scale 1.0
 spawnid mobs 5
 spawnid mobs 61
 spawnid mobs 62
@@ -66,6 +75,7 @@ spawnid objects 15
 spawnid objects 55
 spawnid objects 88
 spawnid objects 89
+spawnid objects 91
 spawnid surfaces 16
 spawnid surfaces 17
 spawnid surfaces 18
@@ -74,6 +84,8 @@ spawnid surfaces 20
 spawnid surfaces 49
 spawnid surfaces 71
 spawnid surfaces 72
+spawnid surfaces 92
+spawnid surfaces 94
 spawnid edges 21
 spawnid edges 22
 spawnid edges 23
@@ -86,6 +98,8 @@ spawnid edges 51
 spawnid edges 52
 spawnid edges 76
 spawnid edges 77
+spawnid edges 96
+spawnid edges 97
 spawnid size_hints 25
 spawnid size_hints 26
 spawnid size_hints 27
@@ -130,6 +144,8 @@ spawnid devices 85
 spawnid devices 86
 spawnid devices 87
 spawnid doors 90
+spawnid sphere_geometries 93
+spawnid tile_geometries 95
 set mobs 5 object_id 14
 set mobs 61 object_id 15
 set mobs 62 object_id 55
@@ -147,14 +163,15 @@ set objects 15 name "Ship 15"
 set objects 55 name "Truck"
 set objects 88 name "Diamond Obelisk"
 set objects 89 name "Diamond Obelisk"
+set objects 91 name "Planet 91"
+set objects 11 on_surface_id 20
 set objects 12 on_surface_id 72
-set objects 13 on_surface_id 72
-set objects 14 on_surface_id 20
+set objects 14 on_surface_id 94
 set objects 15 on_surface_id 49
-set objects 55 on_surface_id 49
-set objects 88 on_surface_id 49
+set objects 55 on_surface_id 94
+set objects 88 on_surface_id 92
 set objects 89 on_surface_id 49
-set objects 11 container_id 14
+set objects 13 container_id 14
 set objects 11 size 6
 set objects 12 size 7
 set objects 13 size 7
@@ -162,18 +179,24 @@ set objects 14 size 9
 set objects 15 size 12
 set objects 88 size 11
 set objects 89 size 11
+set objects 91 size 20
+set objects 13 x 0.0
+set objects 14 x 15.0
 set objects 15 x 1000.0
-set objects 55 x 1000.0
-set objects 88 x 1030.0
+set objects 55 x 15.0
+set objects 88 x 0.0
 set objects 89 x 990.0
+set objects 13 y 0.0
+set objects 14 y 15.0
 set objects 15 y 0.0
-set objects 55 y 0.0
-set objects 88 y 100.0
+set objects 55 y 15.0
+set objects 88 y 0.0
 set objects 89 y 400.0
 set objects 15 entry_id 17
 set objects 55 entry_id 71
-set objects 15 heat_counter 2878
-set objects 55 heat_counter 408541
+set objects 15 heat_counter 170621
+set objects 55 heat_counter 368430
+set objects 14 smush true
 set surfaces 16 name "Cryochamber"
 set surfaces 17 name "Loading Bay"
 set surfaces 18 name "Supply Closet"
@@ -182,6 +205,8 @@ set surfaces 20 name "Outside Ship 15"
 set surfaces 49 name "Some Lavatube Somewhere"
 set surfaces 71 name "Truck Cab"
 set surfaces 72 name "Truck Bed"
+set surfaces 92 name "Planet 91 Surface"
+set surfaces 94 name "The Badlands"
 set surfaces 16 object_id 15
 set surfaces 17 object_id 15
 set surfaces 18 object_id 15
@@ -189,23 +214,35 @@ set surfaces 19 object_id 15
 set surfaces 20 object_id 15
 set surfaces 71 object_id 55
 set surfaces 72 object_id 55
+set surfaces 92 object_id 91
+set surfaces 94 object_id 91
 set surfaces 17 size 11
 set surfaces 18 size 9
 set surfaces 20 size 12
 set surfaces 49 size 14
 set surfaces 71 size 9
+set surfaces 92 size 21
+set surfaces 94 size 20
 set surfaces 20 outer true
 set surfaces 72 outer true
+set surfaces 92 outer true
+set surfaces 94 outer true
 set surfaces 71 glass true
 set surfaces 20 inverse false
+set surfaces 92 inverse false
+set surfaces 94 inverse false
 set surfaces 71 controls true
-set surfaces 16 temperature -84.0
-set surfaces 17 temperature -83.0
-set surfaces 18 temperature -83.0
-set surfaces 19 temperature -83.0
+set surfaces 16 temperature -113.0
+set surfaces 17 temperature -113.0
+set surfaces 18 temperature -112.0
+set surfaces 19 temperature -112.0
 set surfaces 49 temperature -117.0
-set surfaces 71 temperature 20.0
+set surfaces 71 temperature 14.0
+set surfaces 92 temperature -10.0
+set surfaces 94 temperature -15.0
 set surfaces 49 geometry_id 54
+set surfaces 92 geometry_id 93
+set surfaces 94 geometry_id 95
 set edges 21 surface_id 16
 set edges 22 surface_id 17
 set edges 23 surface_id 17
@@ -218,6 +255,8 @@ set edges 51 surface_id 19
 set edges 52 surface_id 20
 set edges 76 surface_id 71
 set edges 77 surface_id 72
+set edges 96 surface_id 92
+set edges 97 surface_id 94
 set edges 23 index 1
 set edges 36 index 2
 set edges 47 index 1
@@ -233,6 +272,8 @@ set edges 47 to_edge_id 48
 set edges 48 to_edge_id 47
 set edges 51 to_edge_id 52
 set edges 52 to_edge_id 51
+set edges 96 to_edge_id 97
+set edges 97 to_edge_id 96
 set edges 51 form "window"
 set edges 52 form "window"
 set edges 76 form "hatch"
@@ -251,6 +292,10 @@ set edges 51 blocked true
 set edges 52 blocked true
 set edges 23 door_id 90
 set edges 24 door_id 90
+set edges 96 center_x 1.0
+set edges 96 center_y 0.0
+set edges 96 origin_x 0.5
+set edges 96 origin_y 0.0
 set size_hints 25 size 6
 set size_hints 26 size 7
 set size_hints 27 size 9
@@ -313,8 +358,10 @@ set todos 68 check "CHECK"
 set todos 69 check "CHECK"
 set todos 70 check "CHECK"
 set todos 73 check "CHECK"
+set todos 78 check "CHECK"
+set todos 80 check "CHECK"
 set players 50 mob_id 5
-set players 50 clock 23111
+set players 50 clock 28048
 set tube_geometries 54 surface_id 49
 set tube_geometries 54 circumference 1600.0
 set tube_geometries 54 length 3200.0
@@ -339,3 +386,5 @@ set devices 82 enabled true
 set devices 84 enabled true
 set devices 85 enabled nil
 set devices 86 enabled nil
+set sphere_geometries 93 circumference 1500000.0
+set tile_geometries 95 scale 500000.0

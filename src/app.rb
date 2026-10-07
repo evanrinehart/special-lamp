@@ -428,8 +428,8 @@ class App
         if surface.nil?
             puts "(nowhere)"
         else
-            if surface.outer?
-                env = surface.host_object.on_surface
+            env = surface.host_object&.on_surface
+            if surface.outer? && env
                 puts "#{surface.name} (#{env.name})"
             else
                 puts surface.name
@@ -534,6 +534,11 @@ class App
             puts "that won't fit"
         else
             thing.move_to_surface surface_id
+            if surf.simple?
+                thing.clear_location
+            else
+                thing.set_location Vector[0.0,0.0]
+            end
             puts "#{thing.name} moved to #{surf.name}"
         end
     end
@@ -772,65 +777,78 @@ class App
         end
     end
 
-    def go direction
-        player = self.get_puppet.thing
-        surf = player.on_surface
-        here = surf
-        edges = surf.edges.sort_by{|e| e.index}
-        way = nil
-        edges.each do |e|
-            if e.shortcut == direction
-                way = e
-                break
-            elsif e.index == direction
-                way = e
-                break
-            end
-        end
+    def geo_go surface, point, velocity, delta_t, player
 
-        geo = surf.geometry
+        # so, this causes you to go in some direction at some speed for some time.
+        # if you reach a boundary, universe collapses.
 
-        if way.nil? && geo.nil?
-            puts "way not found"
-        elsif way.nil? # geometry yes
-
-            walk_time = 60
-
-            point1 = player.location
-            tn = geo.tangent_from_compass point1, direction
-            speed = player.mob.speed
-            vel = geo.make_velocity tn, speed
-            ttb = geo.time_to_boundary point1, vel
-            if ttb && ttb < 1.0
-                puts "that way surface ends"
-            elsif ttb && ttb < walk_time
-                point2 = geo.motion point1, vel, ttb.floor.to_f
-                land_travel surf, point1, point2, ttb.floor, player
-                look
-            else
-                point2 = geo.motion point1, vel, walk_time.to_f
-                land_travel surf, point1, point2, walk_time, player
-                look
-            end
+        geo = surface.geometry
+        ttb = geo.time_to_boundary point, velocity
+        if ttb && ttb < 1.0
+            puts "I refuse to go another step!"
+        elsif ttb && ttb < delta_t
+            short_t = ttb.floor.to_f
+            point2 = geo.motion point, velocity, short_t
+            player.set_location point2
+            puts "the is the end for now"
+            # TIME PASS?
+            look
         else
-            dest = way.to_surface || here.surroundings_surface
-
-            if dest.nil?
-                puts "no way"
-            elsif player.size > dest.size
-                puts "As it stands you'd never fit."
-            elsif not way.passable?
-                puts "That way is blocked."
-            else
-                transfer_object player, here, dest
-                #puts "moved to #{dest.name}"
-                stop = @driver.advance_second
-                puts "events = #{@driver.get_events}"
-                look
-                #spend_up_to 1
-            end
+            point2 = geo.motion point, velocity, delta_t
+            player.set_location point2
+            # TIME PASS?
+            look
         end
     end
+
+    def simple_go from_surface, to_surface, player
+        if to_surface.nil?
+            puts "nowhere to go"
+        elsif not to_surface.would_fit?(player)
+            puts "As it stands you'd never fit."
+        elsif to_surface.geometry
+            loc = from_surface.host_object.location
+            player.move_to_surface to_surface.id
+            player.set_location loc
+            @driver.advance_second
+            look
+        else
+            player.move_to_surface to_surface.id
+            player.clear_location
+            @driver.advance_second
+            look
+        end
+    end
+
+    def go direction
+        player = self.get_puppet.thing
+        here = player.on_surface
+        geo = here.geometry # no geometry = simple surface
+
+        nsew = [:n, :s, :e, :w].include? direction
+
+        if geo && nsew # moving rectilinear on a geometric surface
+            point1 = player.location
+            tangent = geo.tangent_from_compass point1, direction
+            speed = player.mob.speed
+            vel = geo.make_velocity tangent, speed
+            geo_go here, point1, vel, 60.0, player # TODO "it's complicated"
+        elsif geo
+            puts "it would be nice"
+        else # moving from simple surface
+            way = here.find_way direction
+            if way.nil?
+                puts "no way"
+            elsif way.passable? == false
+                puts "it's blocked"
+            else
+                there = way.to_surface || here.surroundings_surface
+                simple_go here, there, player
+            end
+        end
+
+    end
+
 
     def climb thing_id
         player = self.get_puppet.thing
@@ -850,18 +868,7 @@ class App
             if surfs.empty?
                 puts "#{thing.name} can't be climbed"
             else
-                surf = surfs.first
-                player.move_to_surface surf.id
-                if surf.simple?
-                    player.clear_location
-                else
-                    # to be revisited
-                    puts "climb onto non-simple surface (needs work)"
-                    player.set_location Vector[0.0,0.0]
-                end
-                #puts "climbing onto #{thing.name}"
-                look
-                #spend_up_to 1
+                simple_go here, surfs.first, player
             end
         end
     end
@@ -872,30 +879,8 @@ class App
         if here.nil? || !here.outer?
             puts "you can't fall from here"
         else
-            thing = player.on_surface.host_object
-            if thing.nil? || thing.on_surface_id.nil?
-                puts "nowhere to fall to"
-            else
-                surroundings = thing.on_surface
-                transfer_object player, here, surroundings
-                #puts "moved from #{thing.name} to #{surroundings.name}"
-                look
-                #spend_up_to 1
-            end
-        end
-    end
-
-    def transfer_object thing, from_surface, to_surface
-        # good attempt to standardize movement but doesn't deal with geometric transfers.
-        # and doesn't deal with moving onto a "smaller" geometry from a larger one.
-        # only implements moving to simple, or exiting to surroundings.
-        if to_surface.simple?
-            thing.move_to_surface to_surface.id
-            thing.clear_location
-        else
-            host = from_surface.host_object
-            thing.move_to_surface to_surface.id
-            thing.set_location host.location
+            there = here.host_object&.on_surface
+            simple_go here, there, player
         end
     end
 
@@ -1046,11 +1031,7 @@ class App
             if to_surf.nil?
                 puts "I think not"
             else
-                # to be revisited, to_surf might have geometry (?)
-                player.move_to_surface to_surf.id
-                player.clear_location
-                look
-                #spend_up_to 1
+                simple_go here, to_surf, player
             end
         end
     end
@@ -1066,9 +1047,7 @@ class App
             if to_surf.nil?
                 puts "no way"
             else
-                transfer_object player, here, to_surf
-                look
-                #spend_up_to 1
+                simple_go here, to_surf, player
             end
         end
     end
@@ -1153,15 +1132,17 @@ class App
         host = surface.host_object
         if host && surface.outer?
             env = host&.on_surface
-            results.push env
+            if env
+                results.push env
 
-            geo = env.geometry
-            loc = host.location
-            env.things.each do |thing|
-                next if geo && geo.distance(loc, thing.location) > 5
-                thing.outer_surfaces.each do |surf|
-                    next if surf.id == surface.id
-                    results.push surf
+                geo = env.geometry
+                loc = host.location
+                env.things.each do |thing|
+                    next if geo && geo.distance(loc, thing.location) > 5
+                    thing.outer_surfaces.each do |surf|
+                        next if surf.id == surface.id
+                        results.push surf
+                    end
                 end
             end
         end

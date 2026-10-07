@@ -104,8 +104,18 @@ class Surface < Entity
         # should instead pick the right geometry, not always Tube
         gid = self.geometry_id
         return nil if gid.nil?
-        tube = @world.tube_geometries[gid]
-        TubeGeometry.new(tube.circumference, tube.length)
+        if @world.tube_geometries.exists? gid
+            tube = @world.tube_geometries[gid]
+            TubeGeometry.new(tube.circumference, tube.length)
+        elsif @world.sphere_geometries.exists? gid
+            sphere = @world.sphere_geometries[gid]
+            SphereGeometry.new(sphere.circumference)
+        elsif @world.tile_geometries.exists? gid
+            tile = @world.tile_geometries[gid]
+            TileGeometry.new(tile.scale)
+        else
+            nil
+        end
     end
 
     def surroundings_surface
@@ -164,6 +174,31 @@ class Surface < Entity
         else
             "#{t.round}°C"
         end
+    end
+
+    def find_way dir # dir could be a number or a shortcut symbol
+        edges.each do |edge|
+            return edge if edge.shortcut == dir || edge.index == dir
+        end
+        nil
+    end
+
+    def would_fit? thing
+        effective_size = thing.size
+        effective_size -= 1 if thing.smush?
+        effective_size < self.size
+    end
+
+    def within_cutout point1
+        geo = self.geometry
+        self.edges.each do |edge|
+            point2 = edge.center
+            next if point2.nil?
+            r = edge.radius
+            dist_center = geo.distance point1, point2
+            return edge if dist_center < edge.radius
+        end
+        nil
     end
 
 end

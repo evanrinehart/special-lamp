@@ -218,10 +218,10 @@ end
 
 class SphereGeometry
 
-    def initialize scale=1.0
-        @scale = scale.to_f
+    def initialize circumference=4.0
+        @circumference = circumference
+        @scale = @circumference / 4.0
         @inv_scale = 1.0 / @scale
-        @circumference = 4.0 * @scale
     end
 
     def landmarks
