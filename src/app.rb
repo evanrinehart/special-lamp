@@ -750,53 +750,48 @@ class App
         vehicle || avatar
     end
 
-    def land_travel surface, point1, point2, seconds, thing, effect: :slow
-        geometry = surface.geometry
+    # this assumes point1 and point2 are on the same surface, no bounds check
+    # something else needs to plan to finish at edge boundary (and resume).
+    # issues, can't be interrupted
+    def geo_go surface, point1, point2, seconds, thing
+        geo = surface.geometry
         count = 0
-        loc = point1
-        divisor = effect==:slow ? 60 : 15
-        delay = effect==:slow ? 0.7 : 0.12
         seconds.times do
             count += 1
-            loc = geometry.interpolate point1, point2, (count.to_f / seconds)
+            loc = geo.interpolate point1, point2, (count.to_f / seconds)
             thing.set_location loc
-            stop = @driver.advance_second
-            if count % divisor == 0
-                events = @driver.get_events
-                puts "<#{@player.show_time}> #{thing.mob.movement}" unless seconds <= divisor
-                sleep delay unless seconds <= divisor
-            end
-            if stop
-                puts "something interrupted the trip"
-                break
+            @driver.advance_second
+            if count % 60 == 0
+                puts "<#{@player.show_time}> trudge" unless seconds <= 60
+                sleep 0.7 unless seconds <= 60
             end
         end
-        if count == seconds
-            loc = point2
-            thing.set_location point2
-        end
+        thing.set_location point2
     end
 
-    def geo_go surface, point, velocity, delta_t, player
+    # busted. Called by 'go' when moving on a surface.
+    # problem is it doesn't know about internal "cutout" edges.
+    # we should not go past them, at least. Ideally, we traverse the edges.
+    def whaa surface, point1, velocity, delta_t, player
 
         # so, this causes you to go in some direction at some speed for some time.
         # if you reach a boundary, universe collapses.
 
+        # DOESN'T KNOW ABOUT CUTOUTS. SHOULD IT?
+
         geo = surface.geometry
-        ttb = geo.time_to_boundary point, velocity
+        ttb = geo.time_to_boundary point1, velocity
         if ttb && ttb < 1.0
             puts "I refuse to go another step!"
         elsif ttb && ttb < delta_t
-            short_t = ttb.floor.to_f
-            point2 = geo.motion point, velocity, short_t
-            player.set_location point2
+            short_t = ttb.floor
+            point2 = geo.motion point1, velocity, short_t.to_f
+            geo_go surface, point1, point2, short_t, player
             puts "the is the end for now"
-            # TIME PASS?
             look
         else
-            point2 = geo.motion point, velocity, delta_t
-            player.set_location point2
-            # TIME PASS?
+            point2 = geo.motion point1, velocity, delta_t.to_f
+            geo_go surface, point1, point2, delta_t, player
             look
         end
     end
@@ -832,7 +827,7 @@ class App
             tangent = geo.tangent_from_compass point1, direction
             speed = player.mob.speed
             vel = geo.make_velocity tangent, speed
-            geo_go here, point1, vel, 60.0, player # TODO "it's complicated"
+            whaa here, point1, vel, 60, player
         elsif geo
             puts "it would be nice"
         else # moving from simple surface
@@ -959,12 +954,8 @@ class App
                 time = (meters / speed).ceil
                 puts "move #{meters.round} meters toward #{thing.name}"
                 puts "taking #{format_time(meters / speed)} ... "
-                land_travel surface, point1, point2, time, player, effect: effect
+                geo_go surface, point1, point2, time, player
                 look
-                #player.set_location thing.location
-                #seconds = (meters / speed).round
-                #@player.add_time seconds
-                #spend_up_to seconds
             end
         end
     end
